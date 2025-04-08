@@ -9,26 +9,20 @@ STACK ?= ${stack}
 TERRAFORM_STACK ?= $(or ${STACK}, infrastructure/environments/${TF_ENV})
 dir ?= ${TERRAFORM_STACK}
 
-terraform-init: # Initialise Terraform - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform init command, default is none/empty] @Development
-	make _terraform cmd="init" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+dev:
+	$(eval CONFIG=dev)
 
-terraform-plan: # Plan Terraform changes - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform plan command, default is none/empty] @Development
-	make _terraform cmd="plan" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+terraform-init: # Initialise Terraform - make <env> terraform-init
+	terraform -chdir=infrastructure/terraform init
 
-terraform-apply: # Apply Terraform changes - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform apply command, default is none/empty] @Development
-	make _terraform cmd="apply" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan
+	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
 
-terraform-destroy: # Destroy Terraform resources - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform destroy command, default is none/empty] @Development
-	make _terraform \
-		cmd="destroy" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+terraform-apply: # Apply Terraform changes - make <env> terraform-apply
+	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
+
+terraform-destroy: # Destroy Terraform resources - make <env> terraform-destroy
+	terraform -chdir=infrastructure/terraform destroy -var-file ../environments/${CONFIG}/variables.tfvars
 
 terraform-fmt: # Format Terraform files - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform fmt command, default is '-recursive'] @Quality
 	make _terraform cmd="fmt" \
@@ -66,14 +60,14 @@ terraform-install: # Install Terraform @Installation
 
 # ==============================================================================
 
-${VERBOSE}.SILENT: \
-	_terraform \
-	clean \
-	terraform-apply \
-	terraform-destroy \
-	terraform-fmt \
-	terraform-init \
-	terraform-install \
-	terraform-plan \
-	terraform-shellscript-lint \
-	terraform-validate \
+# ${VERBOSE}.SILENT: \
+# 	_terraform \
+# 	clean \
+# 	terraform-apply \
+# 	terraform-destroy \
+# 	terraform-fmt \
+# 	terraform-init \
+# 	terraform-install \
+# 	terraform-plan \
+# 	terraform-shellscript-lint \
+# 	terraform-validate \
