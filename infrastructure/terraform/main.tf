@@ -96,6 +96,7 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
         name = "ALLOWED_HOSTS"
         value = "manage-breast-screening-django.lemonsand-63364ecc.uksouth.azurecontainerapps.io"
       }
+      # TODO: add SECRET_KEY
     }
     min_replicas = 1
   }
