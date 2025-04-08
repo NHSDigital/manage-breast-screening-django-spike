@@ -11,10 +11,7 @@ terraform {
 }
 
 provider "azurerm" {
-  subscription_id = "67aab2fa-fcc7-49da-9dc6-cb90f0fa0628"
-  features {
-
-  }
+  features {}
 }
 
 resource "azurerm_resource_group" "colin_spike" {
@@ -23,7 +20,7 @@ resource "azurerm_resource_group" "colin_spike" {
 }
 
 resource "azurerm_virtual_network" "example" {
-    name                = "example-network"
+  name                = "example-network"
   location            = azurerm_resource_group.colin_spike.location
   resource_group_name = azurerm_resource_group.colin_spike.name
   address_space       = ["10.0.0.0/16"]
@@ -46,40 +43,13 @@ resource "azurerm_log_analytics_workspace" "example" {
 }
 
 resource "azurerm_container_app_environment" "example" {
-  name                       = "my-environment"
-  location                   = azurerm_resource_group.colin_spike.location
-  resource_group_name        = azurerm_resource_group.colin_spike.name
-  logs_destination           = "log-analytics"
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.example.id
-  infrastructure_subnet_id = azurerm_subnet.example.id
+  name                           = "my-environment"
+  location                       = azurerm_resource_group.colin_spike.location
+  resource_group_name            = azurerm_resource_group.colin_spike.name
+  logs_destination               = "log-analytics"
+  log_analytics_workspace_id     = azurerm_log_analytics_workspace.example.id
+  infrastructure_subnet_id       = azurerm_subnet.example.id
   internal_load_balancer_enabled = true
-}
-
-resource "azurerm_container_app" "devops-capstone-green" {
-  name                         = "devops-capstone-green"
-  container_app_environment_id = azurerm_container_app_environment.example.id
-  resource_group_name          = azurerm_resource_group.colin_spike.name
-  revision_mode                = "Single"
-
-  template {
-    container {
-      name   = "devops-capstone-green"
-      image  = "josielbr/devops-capstone-green:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
-    }
-    min_replicas = 1
-  }
-  ingress {
-    external_enabled = true
-    target_port      = 80
-    allow_insecure_connections = false
-    traffic_weight {
-      # traffic_weight block only used when revision_mode = "Multiple"
-      percentage = 100
-      latest_revision = true
-    }
-  }
 }
 
 resource "azurerm_container_app" "manage-breast-screening-django" {
@@ -88,6 +58,12 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
   container_app_environment_id = azurerm_container_app_environment.example.id
   resource_group_name          = azurerm_resource_group.colin_spike.name
   revision_mode                = "Single"
+
+  secret {
+    name  = "secret-key"
+    value = "abcd123"
+
+  }
 
   template {
     container {
@@ -98,18 +74,23 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
       env {
         name = "ALLOWED_HOSTS"
         # value = "manage-breast-screening-django.lemonsand-63364ecc.uksouth.azurecontainerapps.io"
-        value = azurerm_container_app_environment.example.default_domain
+        value = "manage-breast-screening-django.${azurerm_container_app_environment.example.default_domain}"
       }
       # TODO: add SECRET_KEY
+      env {
+        name = "SECRET_KEY"
+        secret_name = "secret-key"
+      }
+
     }
     min_replicas = 1
   }
   ingress {
-    external_enabled = true
-    target_port      = 8000
+    external_enabled           = true
+    target_port                = 8000
     allow_insecure_connections = false
     traffic_weight {
-      percentage = 100
+      percentage      = 100
       latest_revision = true
     }
   }
