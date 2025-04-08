@@ -68,7 +68,8 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
   template {
     container {
       name   = "manage-breast-screening-django-spike"
-      image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained-v2"
+      image  = var.docker_image
+      # image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained-v2"
       cpu    = 0.25
       memory = "0.5Gi"
       env {
