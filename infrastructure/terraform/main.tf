@@ -69,17 +69,15 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
     container {
       name   = "manage-breast-screening-django-spike"
       image  = var.docker_image
-      # image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained-v2"
       cpu    = 0.25
       memory = "0.5Gi"
       env {
         name = "ALLOWED_HOSTS"
-        # value = "manage-breast-screening-django.lemonsand-63364ecc.uksouth.azurecontainerapps.io"
         value = "manage-breast-screening-django.${azurerm_container_app_environment.example.default_domain}"
       }
-      # TODO: add SECRET_KEY
       env {
         name = "SECRET_KEY"
+        # TODO: read from key vault
         secret_name = "secret-key"
       }
 
