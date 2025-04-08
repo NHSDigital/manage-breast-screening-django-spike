@@ -4,16 +4,22 @@
 # Custom implementation - implementation of a make target should not exceed 5 lines of effective code.
 # In most cases there should be no need to modify the existing make targets.
 
-TF_ENV ?= dev
-STACK ?= ${stack}
-TERRAFORM_STACK ?= $(or ${STACK}, infrastructure/environments/${TF_ENV})
-dir ?= ${TERRAFORM_STACK}
 
 dev:
-	$(eval CONFIG=dev)
+	$(eval include infrastructure/environments/dev/variables.sh)
+
+ci:
+	$(eval AUTO_APPROVE=-auto-approve)
+	$(eval SKIP_AZURE_LOGIN=true)
+
+set-azure-account:
+	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
 terraform-init: # Initialise Terraform - make <env> terraform-init
-	terraform -chdir=infrastructure/terraform init
+	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}.tfstate
 
 terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan
 	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
