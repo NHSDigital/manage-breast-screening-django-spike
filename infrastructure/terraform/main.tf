@@ -92,6 +92,10 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
       image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained"
       cpu    = 0.25
       memory = "0.5Gi"
+      env {
+        name = "ALLOWED_HOSTS"
+        value = "manage-breast-screening-django.lemonsand-63364ecc.uksouth.azurecontainerapps.io"
+      }
     }
     min_replicas = 1
   }
