@@ -16,6 +16,8 @@ set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
 terraform-init: # Initialise Terraform - make <env> terraform-init
+	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
+
 	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
@@ -24,11 +26,11 @@ terraform-init: # Initialise Terraform - make <env> terraform-init
 terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan
 	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
 
-terraform-apply: # Apply Terraform changes - make <env> terraform-apply
-	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
+terraform-apply: terraform-init # Apply Terraform changes - make <env> terraform-apply
+	terraform -chdir=infrastructure/terraform apply -var-file ../environments/${CONFIG}/variables.tfvars ${AUTO_APPROVE}
 
 terraform-destroy: # Destroy Terraform resources - make <env> terraform-destroy
-	terraform -chdir=infrastructure/terraform destroy -var-file ../environments/${CONFIG}/variables.tfvars
+	terraform -chdir=infrastructure/terraform destroy -var-file ../environments/${CONFIG}/variables.tfvars ${AUTO_APPROVE}
 
 terraform-fmt: # Format Terraform files - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform fmt command, default is '-recursive'] @Quality
 	make _terraform cmd="fmt" \
