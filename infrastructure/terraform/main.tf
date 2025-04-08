@@ -65,14 +65,43 @@ resource "azurerm_container_app" "devops-capstone-green" {
       cpu    = 0.25
       memory = "0.5Gi"
     }
+    min_replicas = 1
   }
   ingress {
-    external_enabled = false
+    external_enabled = true
     target_port      = 80
     allow_insecure_connections = false
     traffic_weight {
-        percentage = 100
-        revision_suffix = "latest"
+      # traffic_weight block only used when revision_mode = "Multiple"
+      percentage = 100
+      latest_revision = true
+    }
+  }
+}
+
+resource "azurerm_container_app" "manage-breast-screening-django" {
+  # Limited to 32 characters
+  name                         = "manage-breast-screening-django"
+  container_app_environment_id = azurerm_container_app_environment.example.id
+  resource_group_name          = azurerm_resource_group.colin_spike.name
+  revision_mode                = "Single"
+
+  template {
+    container {
+      name   = "manage-breast-screening-django-spike"
+      image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained"
+      cpu    = 0.25
+      memory = "0.5Gi"
+    }
+    min_replicas = 1
+  }
+  ingress {
+    external_enabled = true
+    target_port      = 8000
+    allow_insecure_connections = false
+    traffic_weight {
+      percentage = 100
+      latest_revision = true
     }
   }
 }
