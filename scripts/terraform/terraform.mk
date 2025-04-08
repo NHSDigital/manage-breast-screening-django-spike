@@ -4,6 +4,7 @@
 # Custom implementation - implementation of a make target should not exceed 5 lines of effective code.
 # In most cases there should be no need to modify the existing make targets.
 
+DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening-django-spike
 
 dev:
 	$(eval include infrastructure/environments/dev/variables.sh)
@@ -22,6 +23,8 @@ terraform-init: # Initialise Terraform - make <env> terraform-init
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
+
+	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
 
 terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan
 	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
