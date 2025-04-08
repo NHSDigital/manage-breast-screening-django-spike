@@ -5,6 +5,9 @@ terraform {
       version = "4.25.0"
     }
   }
+  backend "azurerm" {
+    container_name = "terraform-state"
+  }
 }
 
 provider "azurerm" {
@@ -89,12 +92,13 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
   template {
     container {
       name   = "manage-breast-screening-django-spike"
-      image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained"
+      image  = "ghcr.io/nhsdigital/manage-breast-screening-django-spike:self-contained-v2"
       cpu    = 0.25
       memory = "0.5Gi"
       env {
         name = "ALLOWED_HOSTS"
-        value = "manage-breast-screening-django.lemonsand-63364ecc.uksouth.azurecontainerapps.io"
+        # value = "manage-breast-screening-django.lemonsand-63364ecc.uksouth.azurecontainerapps.io"
+        value = azurerm_container_app_environment.example.default_domain
       }
       # TODO: add SECRET_KEY
     }
