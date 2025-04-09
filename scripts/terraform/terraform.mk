@@ -26,10 +26,10 @@ terraform-init: # Initialise Terraform - make <env> terraform-init
 
 	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
 
-terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan
+terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan DOCKER_IMAGE_TAG=abcd123
 	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
 
-terraform-apply: terraform-init # Apply Terraform changes - make <env> terraform-apply
+terraform-apply: terraform-init # Apply Terraform changes - make <env> terraform-apply DOCKER_IMAGE_TAG=abcd123
 	terraform -chdir=infrastructure/terraform apply -var-file ../environments/${CONFIG}/variables.tfvars ${AUTO_APPROVE}
 
 terraform-destroy: # Destroy Terraform resources - make <env> terraform-destroy
