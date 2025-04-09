@@ -69,20 +69,21 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
     identity_ids = [ azurerm_user_assigned_identity.container_app_identity.id ]
   }
 
-  dynamic "secret" {
-    for_each = data.azurerm_key_vault_secrets.app.secrets
-    content {
-      # KV secrets are uppercase and hyphen separated
-      # app container secrets are lowercase and hyphen separated
-      name = lower(secret.value.name)
-      identity = azurerm_user_assigned_identity.container_app_identity.id
-      key_vault_secret_id = secret.value.id
-    }
-  }
-  # secret {
-  #   name  = "secret-key"
-  #   value = "abcd123"
+  # dynamic "secret" {
+  #   for_each = data.azurerm_key_vault_secrets.app.secrets
+  #   content {
+  #     # KV secrets are uppercase and hyphen separated
+  #     # app container secrets are lowercase and hyphen separated
+  #     name = lower(secret.value.name)
+  #     identity = azurerm_user_assigned_identity.container_app_identity.id
+  #     key_vault_secret_id = secret.value.id
+  #   }
   # }
+
+  secret {
+    name  = "secret-key"
+    value = "abcd123"
+  }
 
   template {
     container {
@@ -94,16 +95,17 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
         name = "ALLOWED_HOSTS"
         value = "manage-breast-screening-django.${azurerm_container_app_environment.example.default_domain}"
       }
-      dynamic "env" {
-        for_each = data.azurerm_key_vault_secrets.app.secrets
-        content {
-          # Env vars are uppercase and underscore separated
-          name = upper(replace(env.value.name, "-", "_"))
-          # KV secrets are uppercase and hyphen separated
-          # app container secrets are lowercase and hyphen separated
-          secret_name = lower(env.value.name)
-        }
-      }
+      # dynamic "env" {
+      #   for_each = data.azurerm_key_vault_secrets.app.secrets
+      #   content {
+      #     # Env vars are uppercase and underscore separated
+      #     name = upper(replace(env.value.name, "-", "_"))
+      #     # KV secrets are uppercase and hyphen separated
+      #     # app container secrets are lowercase and hyphen separated
+      #     secret_name = lower(env.value.name)
+      #   }
+      # }
+
       env {
         name = "SECRET_KEY"
         # TODO: read from key vault
