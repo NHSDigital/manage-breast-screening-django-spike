@@ -33,7 +33,6 @@ resource "azurerm_subnet" "example" {
   address_prefixes     = ["10.0.0.0/23"]
 }
 
-
 resource "azurerm_log_analytics_workspace" "example" {
   name                = "acctest-01"
   location            = azurerm_resource_group.colin_spike.location
@@ -52,6 +51,12 @@ resource "azurerm_container_app_environment" "example" {
   internal_load_balancer_enabled = true
 }
 
+resource "azurerm_user_assigned_identity" "container_app_identity" {
+  name                = "container-app-identity"
+  location            = azurerm_resource_group.colin_spike.location
+  resource_group_name = azurerm_resource_group.colin_spike.name
+}
+
 resource "azurerm_container_app" "manage-breast-screening-django" {
   # Limited to 32 characters
   name                         = "manage-breast-screening-django"
@@ -60,7 +65,8 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
   revision_mode                = "Single"
 
   identity {
-    type = "SystemAssigned"
+    type = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.container_app_identity.id ]
   }
 
   dynamic "secret" {
@@ -69,8 +75,7 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
       # KV secrets are uppercase and hyphen separated
       # app container secrets are lowercase and hyphen separated
       name = lower(secret.value.name)
-      # TODO: create MI
-      identity = "System"
+      identity = azurerm_user_assigned_identity.container_app_identity.id
       key_vault_secret_id = secret.value.id
     }
   }
@@ -117,4 +122,10 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
       latest_revision = true
     }
   }
+}
+
+resource "azurerm_role_assignment" "key_vault_reader" {
+  scope                = azurerm_resource_group.colin_spike.id
+  role_definition_name = "Key Vault Reader"
+  principal_id         = azurerm_user_assigned_identity.container_app_identity.principal_id
 }
