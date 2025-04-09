@@ -4,31 +4,36 @@
 # Custom implementation - implementation of a make target should not exceed 5 lines of effective code.
 # In most cases there should be no need to modify the existing make targets.
 
-TF_ENV ?= dev
-STACK ?= ${stack}
-TERRAFORM_STACK ?= $(or ${STACK}, infrastructure/environments/${TF_ENV})
-dir ?= ${TERRAFORM_STACK}
+DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening-django-spike
 
-terraform-init: # Initialise Terraform - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform init command, default is none/empty] @Development
-	make _terraform cmd="init" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+dev:
+	$(eval include infrastructure/environments/dev/variables.sh)
 
-terraform-plan: # Plan Terraform changes - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform plan command, default is none/empty] @Development
-	make _terraform cmd="plan" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+ci:
+	$(eval AUTO_APPROVE=-auto-approve)
+	$(eval SKIP_AZURE_LOGIN=true)
 
-terraform-apply: # Apply Terraform changes - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform apply command, default is none/empty] @Development
-	make _terraform cmd="apply" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+set-azure-account:
+	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-terraform-destroy: # Destroy Terraform resources - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform destroy command, default is none/empty] @Development
-	make _terraform \
-		cmd="destroy" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+terraform-init: # Initialise Terraform - make <env> terraform-init
+	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
+
+	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}.tfstate
+
+	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
+
+terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan DOCKER_IMAGE_TAG=abcd123
+	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars
+
+terraform-apply: terraform-init # Apply Terraform changes - make <env> terraform-apply DOCKER_IMAGE_TAG=abcd123
+	terraform -chdir=infrastructure/terraform apply -var-file ../environments/${CONFIG}/variables.tfvars ${AUTO_APPROVE}
+
+terraform-destroy: # Destroy Terraform resources - make <env> terraform-destroy
+	terraform -chdir=infrastructure/terraform destroy -var-file ../environments/${CONFIG}/variables.tfvars ${AUTO_APPROVE}
 
 terraform-fmt: # Format Terraform files - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform fmt command, default is '-recursive'] @Quality
 	make _terraform cmd="fmt" \
@@ -66,14 +71,14 @@ terraform-install: # Install Terraform @Installation
 
 # ==============================================================================
 
-${VERBOSE}.SILENT: \
-	_terraform \
-	clean \
-	terraform-apply \
-	terraform-destroy \
-	terraform-fmt \
-	terraform-init \
-	terraform-install \
-	terraform-plan \
-	terraform-shellscript-lint \
-	terraform-validate \
+# ${VERBOSE}.SILENT: \
+# 	_terraform \
+# 	clean \
+# 	terraform-apply \
+# 	terraform-destroy \
+# 	terraform-fmt \
+# 	terraform-init \
+# 	terraform-install \
+# 	terraform-plan \
+# 	terraform-shellscript-lint \
+# 	terraform-validate \
