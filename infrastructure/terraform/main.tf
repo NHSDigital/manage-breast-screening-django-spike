@@ -59,6 +59,10 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
   resource_group_name          = azurerm_resource_group.colin_spike.name
   revision_mode                = "Single"
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   dynamic "secret" {
     for_each = data.azurerm_key_vault_secrets.app.secrets
     content {
