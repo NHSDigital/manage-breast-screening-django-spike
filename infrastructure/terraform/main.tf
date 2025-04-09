@@ -15,7 +15,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "colin_spike" {
-  name     = "colin-spike"
+  name     = local.resource_group_name
   location = "uksouth"
 }
 
@@ -59,11 +59,21 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
   resource_group_name          = azurerm_resource_group.colin_spike.name
   revision_mode                = "Single"
 
-  secret {
-    name  = "secret-key"
-    value = "abcd123"
-
+  dynamic "secret" {
+    for_each = data.azurerm_key_vault_secrets.app.secrets
+    content {
+      # KV secrets are uppercase and hyphen separated
+      # app container secrets are lowercase and hyphen separated
+      name = lower(secret.name)
+      # TODO: create MI
+      identity = "System"
+      key_vault_secret_id = secret.id
+    }
   }
+  # secret {
+  #   name  = "secret-key"
+  #   value = "abcd123"
+  # }
 
   template {
     container {
@@ -74,6 +84,16 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
       env {
         name = "ALLOWED_HOSTS"
         value = "manage-breast-screening-django.${azurerm_container_app_environment.example.default_domain}"
+      }
+      dynamic "env" {
+        for_each = data.azurerm_key_vault_secrets.app.secrets
+        content {
+          # Env vars are uppercase and underscore separated
+          name = upper(replace(env.name, "-", "_"))
+          # KV secrets are uppercase and hyphen separated
+          # app container secrets are lowercase and hyphen separated
+          secret_name = lower(env.name)
+        }
       }
       env {
         name = "SECRET_KEY"
