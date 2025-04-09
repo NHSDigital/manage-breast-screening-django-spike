@@ -64,10 +64,10 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
     content {
       # KV secrets are uppercase and hyphen separated
       # app container secrets are lowercase and hyphen separated
-      name = lower(secret.name)
+      name = lower(secret.value.name)
       # TODO: create MI
       identity = "System"
-      key_vault_secret_id = secret.id
+      key_vault_secret_id = secret.value.id
     }
   }
   # secret {
@@ -89,10 +89,10 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
         for_each = data.azurerm_key_vault_secrets.app.secrets
         content {
           # Env vars are uppercase and underscore separated
-          name = upper(replace(env.name, "-", "_"))
+          name = upper(replace(env.value.name, "-", "_"))
           # KV secrets are uppercase and hyphen separated
           # app container secrets are lowercase and hyphen separated
-          secret_name = lower(env.name)
+          secret_name = lower(env.value.name)
         }
       }
       env {
