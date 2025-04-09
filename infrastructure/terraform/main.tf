@@ -128,6 +128,6 @@ resource "azurerm_container_app" "manage-breast-screening-django" {
 
 resource "azurerm_role_assignment" "key_vault_reader" {
   scope                = azurerm_resource_group.colin_spike.id
-  role_definition_name = "Key Vault Reader"
+  role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.container_app_identity.principal_id
 }
