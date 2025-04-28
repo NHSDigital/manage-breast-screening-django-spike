@@ -26,5 +26,9 @@ urlpatterns = [
     path(
         "clinics/", include("manage_breast_screening.clinics.urls", namespace="clinics")
     ),
+    path(
+        "record-a-mammogram/",
+        include("manage_breast_screening.record_a_mammogram.urls", namespace="record"),
+    ),
     path("", RedirectView.as_view(pattern_name="clinics:index")),
 ]

@@ -1,0 +1,60 @@
+{% extends 'layout-app.html' %}
+{% from 'components/radios/macro.jinja' import radios %}
+{% from 'components/button/macro.jinja' import button %}
+{% from 'components/fieldset/macro.jinja' import fieldset %}
+{% from 'components/back-link/macro.jinja' import backLink %}
+
+{% block beforeContent %}
+{#- Using javascript temporarily - this should be replaced with proper URLs -#}
+{{ backLink({
+  "href": "javascript:history.back()",
+  "text": "Go back"
+}) }}
+{% endblock beforeContent %}
+
+{% block content %}
+<h1>{{step.title}}</h1>
+
+{% if form %}
+<form action="{{request.path}}" method="POST">
+{% block form %}
+{% endblock form %}
+
+
+{{ radios({
+  "idPrefix": "next-step",
+  "name": form.next_step.html_name,
+  "fieldset": {
+    "legend": {
+      "text": step.next_step_legend,
+      "classes": "nhsuk-fieldset__legend--m",
+      "isPageHeading": false
+    }
+  },
+  "hint": {
+    html: step.next_step_hint|e
+  },
+  "items": [
+    {
+      "value": "true",
+      "text": step.continue_label
+    },
+    {
+      "value": "false",
+      "text": step.dropout_label
+    }
+  ]
+}) }}
+
+
+
+{{ button({
+  "text": "Save and continue"
+}) }}
+
+{{csrf_input}}
+
+</form>
+
+{% endif %}
+{% endblock content %}
