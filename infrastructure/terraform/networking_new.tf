@@ -4,7 +4,7 @@ module "container_app_subnet" {
   name                                                           = "container_app_subnet"
   resource_group_name                                            = local.resource_group_name            # TODO: recreate
   vnet_name                                                      = azurerm_virtual_network.example.name # TODO: recreate
-  address_prefixes                                               = ["10.0.3.0/24"]                      # TODO: could be default value?
+  address_prefixes                                               = ["10.0.3.0/23"]                      # TODO: could be default value?
   create_nsg                                                     = false
   location                                                       = "UK South"                                 # TODO: not required if not creating NSG
   monitor_diagnostic_setting_network_security_group_enabled_logs = []                                         # TODO: not required if not creating NSG
