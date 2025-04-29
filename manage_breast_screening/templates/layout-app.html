@@ -90,7 +90,25 @@
     <div class="nhsuk-width-container {{ containerClasses }}">
       {% block beforeContent %}{% endblock %}
       <main class="nhsuk-main-wrapper {{ mainClasses }}" id="maincontent" role="main">
-        {% block content %}{% endblock %}
+        {% block content %}
+        <div class="nhsuk-grid-row">
+          <div class="nhsuk-grid-column-two-thirds">
+            {% block messages %}
+              {#- TODO: show messages from django.contrib.messages -#}
+            {% endblock messages %}
+          </div>
+        </div>
+
+        <div class="nhsuk-grid-row">
+          <div class="nhsuk-grid-column-full">
+            {% block pageNavigation %}
+            {% endblock pageNavigation %}
+          </div>
+        </div>
+
+        {% block pageContent %}
+        {% endblock pageContent %}
+        {% endblock content %}
       </main>
     </div>
   {% endblock %}

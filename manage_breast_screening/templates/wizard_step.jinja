@@ -3,6 +3,7 @@
 {% from 'components/button/macro.jinja' import button %}
 {% from 'components/fieldset/macro.jinja' import fieldset %}
 {% from 'components/back-link/macro.jinja' import backLink %}
+{% from 'components/error-summary/macro.jinja' import errorSummary %}
 
 {% block beforeContent %}
 {#- Using javascript temporarily - this should be replaced with proper URLs -#}
@@ -12,49 +13,69 @@
 }) }}
 {% endblock beforeContent %}
 
-{% block content %}
-<h1>{{step.title}}</h1>
+{% block messages %}
+    {% if form.errors %}
+      {% set ns = namespace(errors=[]) %}
 
-{% if form %}
-<form action="{{request.path}}" method="POST">
-{% block form %}
-{% endblock form %}
+      {% for field, messages in form.errors | items %}
+        {% set ns.errors = ns.errors + [{"text": ",".join(messages), "href": "#" ~ field ~ "-error"}] %}
+      {% endfor %}
 
+      {{ errorSummary({
+        "titleText": "There is a problem",
+        "errorList": ns.errors
+      }) }}
+    {% endif %}
+{% endblock %}
 
-{{ radios({
-  "idPrefix": "next-step",
-  "name": form.next_step.html_name,
-  "fieldset": {
-    "legend": {
-      "text": step.next_step_legend,
-      "classes": "nhsuk-fieldset__legend--m",
-      "isPageHeading": false
-    }
-  },
-  "hint": {
-    html: step.next_step_hint|e
-  },
-  "items": [
-    {
-      "value": "true",
-      "text": step.continue_label
+{% block pageContent %}
+<div class="nhsuk-grid-row">
+  <div class="nhsuk-grid-column-full">
+  <h1>{{step.title}}</h1>
+
+  {% if form %}
+  <form action="{{request.path}}" method="POST">
+  {% block form %}{% endblock form %}
+
+  {% if form.next_step.errors %}
+    {% set errorMessage = {"text": form.next_step.errors | first} %}
+  {% endif %}
+  {{ radios({
+    "name": form.next_step.html_name,
+    "fieldset": {
+      "legend": {
+        "text": step.next_step_legend,
+        "classes": "nhsuk-fieldset__legend--m",
+        "isPageHeading": false
+      }
     },
-    {
-      "value": "false",
-      "text": step.dropout_label
-    }
-  ]
-}) }}
+    "errorMessage": errorMessage,
+    "hint": {
+      html: step.next_step_hint|e
+    },
+    "items": [
+      {
+        "value": "continue",
+        "text": form.next_step[0].choice_label
+      },
+      {
+        "value": "dropout",
+        "text": form.next_step[1].choice_label
+      }
+    ]
+  }) }}
 
 
 
-{{ button({
-  "text": "Save and continue"
-}) }}
+  {{ button({
+    "text": "Save and continue"
+  }) }}
 
-{{csrf_input}}
+  {{csrf_input}}
 
-</form>
+  </form>
 
-{% endif %}
-{% endblock content %}
+  {% endif %}
+  </div>
+</div>
+{% endblock pageContent %}

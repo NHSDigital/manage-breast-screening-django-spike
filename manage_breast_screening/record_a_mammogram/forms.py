@@ -4,16 +4,36 @@ from ..form_utils import ChoiceStep, Step, Wizard
 
 
 class ScreeningAppointmentForm(forms.Form):
-    # TODO: turn into a radio
-    next_step = forms.BooleanField(required=False)
+    next_step = forms.ChoiceField(
+        choices=(
+            ("continue", "Yes, go to medical information"),
+            ("dropout", "No, screening cannot proceed"),
+        ),
+        required=True,
+        widget=forms.RadioSelect(),
+    )
 
 
 class AskForMedicalInformation(forms.Form):
-    next_step = forms.BooleanField(required=False)
+    next_step = forms.ChoiceField(
+        choices=(
+            ("continue", "Yes, mark incomplete sections as ‘none’ or ‘no’"),
+            ("dropout", "No, screening cannot proceed"),
+        ),
+        required=True,
+        widget=forms.RadioSelect(),
+    )
 
 
 class RecordMedicalInformation(forms.Form):
-    next_step = forms.BooleanField(required=False)
+    next_step = forms.ChoiceField(
+        choices=(
+            ("continue", "Yes, go to medical information"),
+            ("dropout", "No, screening cannot proceed"),
+        ),
+        required=True,
+        widget=forms.RadioSelect(),
+    )
 
 
 APPOINTMENT_CANNOT_GO_AHEAD = Step(
