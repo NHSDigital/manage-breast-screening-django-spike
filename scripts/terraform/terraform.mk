@@ -16,7 +16,7 @@ ci:
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-terraform-init: # Initialise Terraform - make <env> terraform-init
+terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 
 	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
