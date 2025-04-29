@@ -18,6 +18,8 @@ set-azure-account:
 
 terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
+	rm -rf infrastructure/modules/dtos-devops-templates
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch DTOSS-8589-container-app-module ${TERRAFORM_MODULES_REF} https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
 
 	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
@@ -25,6 +27,7 @@ terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-
 		-backend-config=key=${ENVIRONMENT}.tfstate
 
 	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
 
 terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan DOCKER_IMAGE_TAG=abcd123
 	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars

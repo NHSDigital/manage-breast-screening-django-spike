@@ -3,5 +3,11 @@
     "MD013": false,
     "MD024": { "siblings_only": true },
     "MD033": false
+  },
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
   }
 }
