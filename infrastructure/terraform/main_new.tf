@@ -13,7 +13,7 @@ module "container-app-environment" {
 module "webapp" {
   source                       = "../modules/dtos-devops-templates/infrastructure/modules/container-app"
   name                         = "manage-breast-screening-web-${var.environment}"
-  container_app_environment_id = module.container_app_environment.id
+  container_app_environment_id = module.container-app-environment.id
   resource_group_name          = local.resource_group_name
   app_key_vault_name           = "kv-colin-spike"
   docker_image                 = var.docker_image
