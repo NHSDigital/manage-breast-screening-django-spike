@@ -18,7 +18,8 @@ module "webapp" {
   app_key_vault_name           = "kv-colin-spike"
   docker_image                 = var.docker_image
   environment_variables = {
-    "ALLOWED_HOSTS" = "manage-breast-screening-django.${module.container-app-environment.default_domain}"
+    "ALLOWED_HOSTS" = "manage-breast-screening-web-${var.environment}.${module.container-app-environment.default_domain}"
   }
+  is_web_app = true
   http_port = 8000
 }
