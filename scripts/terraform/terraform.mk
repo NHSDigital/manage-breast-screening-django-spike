@@ -4,7 +4,7 @@
 # Custom implementation - implementation of a make target should not exceed 5 lines of effective code.
 # In most cases there should be no need to modify the existing make targets.
 
-DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening-django-spike
+DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening
 
 dev:
 	$(eval include infrastructure/environments/dev/variables.sh)
