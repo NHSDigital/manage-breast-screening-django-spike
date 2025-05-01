@@ -1,3 +1,90 @@
 {% extends "wizard_step.jinja" %}
+{% from 'components/checkboxes/macro.jinja' import checkboxes %}
+{% from 'components/input/macro.jinja' import input %}
+{% from 'components/radios/macro.jinja' import radios %}
 
-{% set title = "Appointment cannot go ahead" %}
+{% block form %}
+<h1 class="nhsuk-heading-l">
+  <span class="nhsuk-caption-l">
+    {{ "TBD" }}
+  </span>
+  Appointment cannot go ahead
+</h1>
+
+{% macro makeCheckboxConditionalItem(params) %}
+  {{ input({
+    'label': {
+      'text': "Provide details"
+    },
+    'id': params.value + "Details",
+    'name': params.value + "Details"
+  }) }}
+{% endmacro %}
+
+{% macro toCamelCase(s) -%}
+  {%- set words = s.split(' ') -%}
+  {{ words[0]|lower }}{% for w in words[1:] -%}{{ w|title }}{% endfor %}
+{%- endmacro %}
+
+{% set checkboxItems = [] %}
+
+{% for reason in [
+  'Participant did not attend',
+  'Failed identity check',
+  'Language difficulties',
+  'Physical health issue',
+  'Mental health issue',
+  'Last mammogram within 6 months',
+  'Breast implant risks',
+  'Pain during screening',
+  'Technical issues',
+  'Participant withdrew consent',
+  'Other'
+] %}
+  {% do checkboxItems.append({
+    'text': reason,
+    'value': toCamelCase(reason),
+    'conditional': {
+      'html': makeCheckboxConditionalItem({'value': toCamelCase(reason)})
+    }
+  }) %}
+{% endfor %}
+
+{{ checkboxes({
+  'idPrefix': 'appointment-stopped-reason',
+  'name': 'appointment-stopped-reason',
+  'fieldset': {
+    'legend': {
+      'text': 'Why has this appointment been stopped?',
+      'classes': 'nhsuk-fieldset__legend--m',
+      'isPageHeading': False
+    }
+  },
+  'hint': {
+    'text': 'Select all that apply'
+  },
+  'items': checkboxItems
+}) }}
+
+{{ radios({
+  'idPrefix': 'appointmentReschedule',
+  'name': 'appointmentReschedule',
+  'fieldset': {
+    'legend': {
+      'text': 'Does the appointment need to be rescheduled?',
+      'classes': 'nhsuk-fieldset__legend--m',
+      'isPageHeading': False
+    }
+  },
+  'items': [
+    {
+      'value': 'yes',
+      'text': 'Yes, add participant to reinvite list'
+    },
+    {
+      'value': 'no',
+      'text': 'No'
+    }
+  ]
+}) }}
+{% endblock form %}
