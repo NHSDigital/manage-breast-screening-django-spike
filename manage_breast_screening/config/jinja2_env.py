@@ -5,7 +5,7 @@ from markupsafe import Markup, escape
 
 
 def no_wrap(value):
-    return Markup(f'<span class="app-nowrap">{escape(value)}</span>' if value else "")
+    return Markup(f'<span class="nhsuk-u-nowrap">{escape(value)}</span>' if value else "")
 
 
 def as_hint(value):
