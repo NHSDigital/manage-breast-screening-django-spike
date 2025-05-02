@@ -4,3 +4,4 @@ AZURE_SUBSCRIPTION="Digital Screening DToS - Core Services Dev"
 RESOURCE_GROUP_NAME=colin-spike
 STORAGE_ACCOUNT_NAME=colinspiketerraform
 TERRFORM_MODULES_REF=DTOSS-8589-container-app-module
+ENABLE_SOFT_DELETE=true

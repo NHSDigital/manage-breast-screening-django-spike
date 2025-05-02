@@ -5,6 +5,7 @@
 # In most cases there should be no need to modify the existing make targets.
 
 DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening
+REGION=UK South
 
 dev:
 	$(eval include infrastructure/environments/dev/variables.sh)
@@ -16,7 +17,13 @@ ci:
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
+resource-group-init:
+	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
+		--parameters resourceGroupName=${RESOURCE_GROUP_NAME} \
+			region="${REGION}" storageAccountName=${STORAGE_ACCOUNT_NAME} enableSoftDelete=${ENABLE_SOFT_DELETE} \
+		--confirm-with-what-if
+
+terraform-init: set-azure-account resource-group-init # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 	rm -rf infrastructure/modules/dtos-devops-templates
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch DTOSS-8589-container-app-module ${TERRAFORM_MODULES_REF} https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates

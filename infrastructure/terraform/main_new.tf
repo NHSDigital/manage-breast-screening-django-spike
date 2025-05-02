@@ -23,3 +23,7 @@ module "webapp" {
   is_web_app = true
   http_port = 8000
 }
+
+# TODO: Create key vault
+# TODO: Create log analytics workspace
+# TODO: Configure app environment DNS suffix

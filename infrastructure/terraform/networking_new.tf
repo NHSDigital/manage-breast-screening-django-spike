@@ -11,3 +11,7 @@ module "container_app_subnet" {
   log_analytics_workspace_id                                     = azurerm_log_analytics_workspace.example.id # TODO: recreate
   network_security_group_name                                    = "container_app_subnet"                     # TODO: create default name?
 }
+
+# TODO: Create VNET
+# TODO: Peer VNET to hub
+# TODO: Create private DNS zone for DNS suffix
