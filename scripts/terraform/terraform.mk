@@ -17,13 +17,13 @@ ci:
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-resource-group-init:
+resource-group-init: # Initialise the resource group - make <env> resource-group-init
 	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
 		--parameters resourceGroupName=${RESOURCE_GROUP_NAME} \
 			region="${REGION}" storageAccountName=${STORAGE_ACCOUNT_NAME} enableSoftDelete=${ENABLE_SOFT_DELETE} \
 		--confirm-with-what-if
 
-terraform-init: set-azure-account resource-group-init # Initialise Terraform - make <env> terraform-init
+terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 	rm -rf infrastructure/modules/dtos-devops-templates
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch DTOSS-8589-container-app-module ${TERRAFORM_MODULES_REF} https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
@@ -35,6 +35,7 @@ terraform-init: set-azure-account resource-group-init # Initialise Terraform - m
 
 	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
 	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
 
 terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan DOCKER_IMAGE_TAG=abcd123
 	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${CONFIG}/variables.tfvars

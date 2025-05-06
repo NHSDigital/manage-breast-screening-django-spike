@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "colin_spike" {
-  name     = local.resource_group_name
+  name     = var.resource_group_name
   location = "uksouth"
 }
 
