@@ -18,9 +18,11 @@ set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
 resource-group-init: # Initialise the resource group - make <env> resource-group-init
+	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))
+
 	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
-		--parameters resourceGroupName=${RESOURCE_GROUP_NAME} \
-			region="${REGION}" storageAccountName=${STORAGE_ACCOUNT_NAME} enableSoftDelete=${ENABLE_SOFT_DELETE} \
+		--parameters resourceGroupName=${RESOURCE_GROUP_NAME} region="${REGION}" storageAccountName=${STORAGE_ACCOUNT_NAME} \
+			enableSoftDelete=${ENABLE_SOFT_DELETE} hubName=${HUB} hubSubscriptionID=${HUB_SUBSCRIPTION_ID}\
 		--confirm-with-what-if
 
 terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init

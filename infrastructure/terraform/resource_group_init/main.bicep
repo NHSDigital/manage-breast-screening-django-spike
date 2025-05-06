@@ -4,6 +4,12 @@ param region string
 param resourceGroupName string
 param storageAccountName string
 param enableSoftDelete bool
+@allowed([
+  'dev'
+  'prod'
+])
+param hubName string
+param hubSubscriptionID string
 
 resource mainRG 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: resourceGroupName
@@ -17,5 +23,7 @@ module terraformStateStorageAccount 'storage.bicep' = {
     storageLocation: region
     storageName: storageAccountName
     enableSoftDelete: enableSoftDelete
+    hubName: hubName
+    hubSubscriptionID: hubSubscriptionID
   }
 }
