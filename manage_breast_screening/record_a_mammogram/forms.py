@@ -69,6 +69,10 @@ class AppointmentCannotGoAheadForm(forms.Form):
 
     stopped_reasons = forms.MultipleChoiceField(
         choices=STOPPED_REASON_CHOICES,
+        required=True,
+        error_messages={
+            "required": "A reason for why this appointment cannot continue must be provided"
+        }
     )
 
     decision = forms.ChoiceField(
@@ -82,6 +86,14 @@ class AppointmentCannotGoAheadForm(forms.Form):
             "required": "Select whether the participant needs to be invited for another appointment"
         }
     )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if 'stopped_reasons' in cleaned_data and 'other' in cleaned_data['stopped_reasons']:
+            if not cleaned_data.get('other_details'):
+                self.add_error('other_details', 'Explain why this appointment cannot proceed')
+        return cleaned_data
 
     def save(self):
         reasons_json = {}

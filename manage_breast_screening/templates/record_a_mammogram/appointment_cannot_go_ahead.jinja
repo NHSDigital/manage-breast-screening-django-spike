@@ -12,13 +12,17 @@
 </h1>
 
 {% macro conditionalCheckboxInput(params) %}
+{% set details_field_name = params.field_name + "_details" %}
   {{ input({
     'label': {
       'text': "Provide details"
     },
-    'id': params.field_name + "_details",
-    'name': params.field_name + "_details",
-    'value': params.details_value
+    'id': details_field_name,
+    'name': details_field_name,
+    'value': params.details_value,
+    'errorMessage': {
+      'text': form[details_field_name].errors | first
+    }
   }) }}
 {% endmacro %}
 
@@ -41,6 +45,9 @@
 {{ checkboxes({
   'idPrefix': 'stopped_reasons',
   'name': 'stopped_reasons',
+  'errorMessage': {
+    'text': form.stopped_reasons.errors | first
+  },
   'fieldset': {
     'legend': {
       'text': 'Why has this appointment been stopped?',
