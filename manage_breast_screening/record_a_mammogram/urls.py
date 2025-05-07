@@ -25,7 +25,7 @@ urlpatterns = [
     path("awaiting-images/", views.awaiting_images, name="awaiting_images"),
     path(
         "appointments/<int:pk>/cannot-go-ahead/",
-        views.AppointmentCannotGoAhead.as_view(),
+        views.appointment_cannot_go_ahead,
         name="appointment_cannot_go_ahead",
     ),
 ]
