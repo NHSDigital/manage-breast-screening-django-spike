@@ -28,4 +28,4 @@ module "container_app_subnet" {
 
 # TODO: Create VNET
 # TODO: Peer VNET to hub
-# TODO: Create private DNS zone for DNS suffix
+# TODO: Create kv and private endpoint
