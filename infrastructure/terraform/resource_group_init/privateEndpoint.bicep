@@ -1,11 +1,12 @@
-param envConfig string
+param hub string
 param region string
+param privateDNSZoneID string
 param storageName string
 param storageAccountID string
 
-var RGName = 'rg-hub-${envConfig}-uks-hub-networking'
-var vnetName = 'VNET-${toUpper(envConfig)}-UKS-HUB'
-var subnetName = 'SN-${toUpper(envConfig)}-UKS-HUB-pep'
+var RGName = 'rg-hub-${hub}-uks-hub-networking'
+var vnetName = 'VNET-${toUpper(hub)}-UKS-HUB'
+var subnetName = 'SN-${toUpper(hub)}-UKS-HUB-pep'
 
 // Retrieve the existing vnet resource group
 resource vnetRG 'Microsoft.Resources/resourceGroups@2024-11-01' existing = {
@@ -41,6 +42,22 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-01-01' = {
           groupIds: [
             'blob'
           ]
+        }
+      }
+    ]
+  }
+}
+
+
+resource dnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = {
+  parent: privateEndpoint
+  name: '${storageName}-dns'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: '${storageName}-dns-zone-config'
+        properties: {
+          privateDnsZoneId: privateDNSZoneID
         }
       }
     ]
