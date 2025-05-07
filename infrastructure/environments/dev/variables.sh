@@ -1,9 +1,12 @@
-CONFIG=dev
+ENV_CONFIG=dev
 ENVIRONMENT=dev
 AZURE_SUBSCRIPTION="Digital Screening DToS - Core Services Dev"
 HUB_SUBSCRIPTION="Digital Screening DToS - DevOps"
 HUB=dev
 RESOURCE_GROUP_NAME=colin-spike
-STORAGE_ACCOUNT_NAME=colinspiketerraform
+# RESOURCE_GROUP_NAME=colin-spike
+STORAGE_ACCOUNT_RG=rg-dtos-state-files
+STORAGE_ACCOUNT_NAME=samanbrsdevtfstate
+# STORAGE_ACCOUNT_NAME=colinspiketerraform
 TERRFORM_MODULES_REF=DTOSS-8589-container-app-module
 ENABLE_SOFT_DELETE=false

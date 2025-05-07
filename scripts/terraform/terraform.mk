@@ -6,6 +6,7 @@
 
 DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening
 REGION=UK South
+APP_SHORT_NAME=manbrs
 
 dev:
 	$(eval include infrastructure/environments/dev/variables.sh)
@@ -21,14 +22,16 @@ resource-group-init: # Initialise the resource group - make <env> resource-group
 	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))
 
 	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
-		--parameters resourceGroupName=${RESOURCE_GROUP_NAME} region="${REGION}" storageAccountName=${STORAGE_ACCOUNT_NAME} \
-			enableSoftDelete=${ENABLE_SOFT_DELETE} hubName=${HUB} hubSubscriptionID=${HUB_SUBSCRIPTION_ID}\
+		--subscription ${HUB_SUBSCRIPTION_ID} \
+		--parameters enableSoftDelete=${ENABLE_SOFT_DELETE} envConfig=${ENV_CONFIG} region="${REGION}" \
+			storageAccountRGName=${STORAGE_ACCOUNT_RG}  storageAccountName=${STORAGE_ACCOUNT_NAME} \
 		--confirm-with-what-if
 
 terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 	rm -rf infrastructure/modules/dtos-devops-templates
-	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch DTOSS-8589-container-app-module ${TERRAFORM_MODULES_REF} https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_REF} \
+		https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
 
 	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \

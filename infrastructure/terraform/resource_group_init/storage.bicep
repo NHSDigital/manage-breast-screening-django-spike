@@ -1,22 +1,8 @@
 param storageLocation string
 param storageName string
 param enableSoftDelete bool
-param hubName string
-param hubSubscriptionID string
 
-var hubData = {
-  dev: {
-    vnet: 'VNET-DEV-UKS-HUB'
-    vnetResourceGroup: 'rg-hub-dev-uks-hub-networking'
-    pepSubnet: 'SN-DEV-UKS-HUB-pep'
-  }
-  prod: {
-    vnet: 'VNET-PROD-UKS-HUB'
-    vnetResourceGroup: 'rg-hub-prod-uks-hub-networking'
-    pepSubnet: 'SN-PROD-UKS-HUB-pep'
-  }
-}
-
+// Create storage account without public access
 resource storageAccount 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   name: storageName
   location: storageLocation
@@ -26,53 +12,15 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   kind: 'StorageV2'
   properties: {
     allowBlobPublicAccess: false
-    // TODO
-    // encryption: {
-    //   requireInfrastructureEncryption: true
-    // }
+    encryption: {
+      requireInfrastructureEncryption: true
+    }
     minimumTlsVersion: 'TLS1_2'
     publicNetworkAccess: 'Disabled'
   }
 }
 
-resource vnetRG 'Microsoft.Resources/resourceGroups@2024-11-01' existing = {
-  name: hubData[hubName].vnetResourceGroup
-  scope: subscription(hubSubscriptionID)
-}
-
-// Retrieve an existing Virtual Network
-resource vnet 'Microsoft.Network/virtualNetworks@2024-01-01' existing = {
-  name: hubData[hubName].vnet
-  scope: vnetRG
-}
-
-// Retrieve an existing Subnet within the Virtual Network
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-01-01' existing = {
-  parent: vnet
-  name: hubData[hubName].pepSubnet
-}
-
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-01-01' = {
-  name: '${storageName}-private-endpoint'
-  location: storageLocation
-  properties: {
-    subnet: {
-      id: subnet.id
-    }
-    privateLinkServiceConnections: [
-      {
-        name: '${storageName}-connection'
-        properties: {
-          privateLinkServiceId: storageAccount.id
-          groupIds: [
-            'blob'
-          ]
-        }
-      }
-    ]
-  }
-}
-
+// Create the blob service
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01' = {
   parent: storageAccount
   name: 'default'
@@ -91,6 +39,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01'
   }
 }
 
+// Create the blob container
 resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2024-01-01' = {
   parent: blobService
   name: 'terraform-state'
@@ -100,3 +49,6 @@ resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/container
     denyEncryptionScopeOverride: false
   }
 }
+
+// Output the storage account ID so it can be used to create the private endpoint
+output storageAccountID string = storageAccount.id
