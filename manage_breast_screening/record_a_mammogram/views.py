@@ -56,10 +56,7 @@ class RecordMedicalInformation(FormView):
 def appointment_cannot_go_ahead(request, pk):
     appointment = Appointment.objects.get(pk=pk)
     if request.method == 'POST':
-        post_data = request.POST.copy()
-        for field_name in post_data.getlist('stopped_reasons'):
-            post_data[field_name] = True
-        form = AppointmentCannotGoAheadForm(post_data, instance=appointment)
+        form = AppointmentCannotGoAheadForm(request.POST, instance=appointment)
         if form.is_valid():
             form.save()
             return redirect('clinics:index')

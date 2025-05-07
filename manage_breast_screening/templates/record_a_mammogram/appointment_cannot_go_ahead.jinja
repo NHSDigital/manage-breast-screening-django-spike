@@ -24,11 +24,11 @@
 
 {% set checkboxItems = [] %}
 
-{% for field_name, field in form.get_reason_fields() %}
+{% for field_name, label in form.stopped_reasons.field.choices %}
     {% do checkboxItems.append({
-      'text': field.label,
+      'text': label,
       'value': field_name,
-      'checked': form[field_name].value(),
+      'checked': field_name in (form.stopped_reasons.value() or []),
       'conditional': {
         'html': conditionalCheckboxInput({
           'field_name': field_name,
@@ -55,6 +55,5 @@
 }) }}
 
 {% set decision_legend = "Does the appointment need to be rescheduled?" %}
-{% set decision_hint = "Select whether the participant needs to be invited for another appointment" %}
 
 {% endblock form %}
