@@ -29,11 +29,14 @@ resource-group-init: # Initialise the resource group - make <env> resource-group
 
 terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
+	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))
+
 	rm -rf infrastructure/modules/dtos-devops-templates
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_REF} \
 		https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
 
 	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
+		-backend-config=subscription_id=${HUB_SUBSCRIPTION_ID} \
 		-backend-config=resource_group_name=${STORAGE_ACCOUNT_RG} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
