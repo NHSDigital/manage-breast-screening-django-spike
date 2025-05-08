@@ -55,6 +55,21 @@ Python dependencies are managed via [poetry](https://python-poetry.org/docs/basi
 
 You can run `make dependencies` to install anything that's missing after pulling new changes from GitHub.
 
+### Postgres database
+
+The makefile spins up a postgres DB using docker/podman.
+
+- `make db` starts it if not running
+- `make rebuild_db` rebuilds it from scratch and loads seed data using [Django fixtures](https://docs.djangoproject.com/en/5.2/topics/db/fixtures/)
+
+#### Migrations
+
+Database migrations are handled by [Django's database migration functionality](https://docs.djangoproject.com/en/5.2/topics/migrations/)
+
+- `poetry run manage.py migrate` loads database migrations
+- `poetry run manage.py makemigrations` generates new database migrations
+
+
 ### Django admin
 We'll probably remove it before deploying to production, but currently Django admin is enabled.
 

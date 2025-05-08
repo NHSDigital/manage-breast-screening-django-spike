@@ -2,9 +2,9 @@
 
 include scripts/shared.mk
 
-clean:: # Clean-up project resources (main) @Operations
+clean:: _clean_docker
 
-config: manage_breast_screening/config/.env _install-dependencies githooks-config _install_poetry _first_time_django_setup  # Configure development environment (main) @Configuration
+config: manage_breast_screening/config/.env _install-dependencies githooks-config _install_poetry db  # Configure development environment (main) @Configuration
 
 dependencies: # Install dependencies needed to build and test the project @Pipeline
 	poetry install
@@ -43,8 +43,15 @@ test-lint: # Lint files @Testing
 test-ui: # Run UI tests @Testing
 	# TODO
 
-run: manage_breast_screening/config/.env # Run the development server @Development
+run: manage_breast_screening/config/.env # Start the development server @Development
 	poetry run ./manage.py runserver
+
+db: manage_breast_screening/config/.env # Start the development database @Development
+	docker compose --env-file manage_breast_screening/config/.env up -d
+
+rebuild_db: _clean_docker db # Rebuild the development database @Development
+	poetry run ./manage.py migrate
+	poetry run ./manage.py loaddata clinics participants
 
 _install_poetry:
 	if ! command -v poetry >/dev/null 2>&1; then \
@@ -53,17 +60,13 @@ _install_poetry:
 		echo "poetry already installed"; \
 	fi
 
-_first_time_django_setup:
-	poetry install
-	poetry run ./manage.py migrate
-	poetry run ./manage.py loaddata clinics participants
-	npm install
-	npm run compile:css
+_clean_docker:
+	docker compose --env-file manage_breast_screening/config/.env down -v # remove the volume if it exists
 
 manage_breast_screening/config/.env:
 	cp manage_breast_screening/config/.env.tpl manage_breast_screening/config/.env
 
 
 .DEFAULT_GOAL := help
-.PHONY: clean config dependencies build deploy githooks-config githooks-run help test test-unit test-lint test-ui run _install_poetry _first_time_django_setup
+.PHONY: clean config dependencies build deploy githooks-config githooks-run help test test-unit test-lint test-ui run _install_poetry _clean_docker rebuild_db db
 .SILENT: help run
