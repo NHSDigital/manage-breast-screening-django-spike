@@ -26,6 +26,42 @@ data "azurerm_private_dns_resolver_inbound_endpoint" "this" {
   private_dns_resolver_id = data.azurerm_private_dns_resolver.this.id
 }
 
+module "peering_spoke_hub" {
+  source = "../modules/dtos-devops-templates/infrastructure/modules/vnet-peering"
+
+  name                = "${module.main_vnet.name}-to-hub-peering"
+  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+  vnet_name           = module.vnet[each.key].vnet.name
+  remote_vnet_id      = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.id
+
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+  allow_gateway_transit        = false
+
+  use_remote_gateways = false
+}
+
+module "peering_hub_spoke" {
+  for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
+
+  providers = {
+    azurerm = azurerm.hub
+  }
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/vnet-peering"
+
+  name                = "hub-to-${module.main_vnet.name}-peering"
+  resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name
+  vnet_name           = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].name
+  remote_vnet_id      = module.vnet[each.key].vnet.id
+
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+  allow_gateway_transit        = false
+
+  use_remote_gateways = false
+}
+
 
 module "container_app_subnet" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/subnet"
