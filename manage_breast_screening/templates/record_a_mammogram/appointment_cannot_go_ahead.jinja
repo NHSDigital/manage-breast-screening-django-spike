@@ -12,18 +12,25 @@
 </h1>
 
 {% macro conditionalCheckboxInput(params) %}
-{% set details_field_name = params.field_name + "_details" %}
-  {{ input({
+  {% set details_field_name = params.field_name + "_details" %}
+  {% set input_params = {
     'label': {
       'text': "Provide details"
     },
     'id': details_field_name,
     'name': details_field_name,
-    'value': params.details_value,
-    'errorMessage': {
-      'text': form[details_field_name].errors | first
-    }
-  }) }}
+    'value': params.details_value
+  } %}
+  {% if form[details_field_name].errors %}
+    {% set error_params = {
+      'errorMessage': {
+        'text': form[details_field_name].errors | first
+      }
+    } %}
+    {% set input_params = dict(input_params, **error_params) %}
+  {% endif %}
+
+  {{ input(input_params) }}
 {% endmacro %}
 
 {% set checkboxItems = [] %}
@@ -42,12 +49,9 @@
     }) %}
 {% endfor %}
 
-{{ checkboxes({
+{% set checkbox_params = {
   'idPrefix': 'stopped_reasons',
   'name': 'stopped_reasons',
-  'errorMessage': {
-    'text': form.stopped_reasons.errors | first
-  },
   'fieldset': {
     'legend': {
       'text': 'Why has this appointment been stopped?',
@@ -59,7 +63,17 @@
     'text': 'Select all that apply'
   },
   'items': checkboxItems,
-}) }}
+} %}
+{% if form.stopped_reasons.errors %}
+  {% set error_params = {
+    'errorMessage': {
+      'text': form.stopped_reasons.errors | first
+    }
+  } %}
+  {% set checkbox_params = dict(checkbox_params, **error_params) %}
+{% endif %}
+
+{{ checkboxes(checkbox_params) }}
 
 {% set decision_legend = "Does the appointment need to be rescheduled?" %}
 
