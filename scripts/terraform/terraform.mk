@@ -18,18 +18,18 @@ ci:
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-resource-group-init: # Initialise the resource group - make <env> resource-group-init
-	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))
-
+resource-group-init: get-hub-subscription-id # Initialise the resource group - make <env> resource-group-init
 	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
 		--subscription ${HUB_SUBSCRIPTION_ID} \
 		--parameters enableSoftDelete=${ENABLE_SOFT_DELETE} envConfig=${ENV_CONFIG} region="${REGION}" \
 			storageAccountRGName=${STORAGE_ACCOUNT_RG}  storageAccountName=${STORAGE_ACCOUNT_NAME} \
 		--confirm-with-what-if
 
-terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-init
-	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
+get-hub-subscription-id: # Retrieve the hub subscription ID based on the subscription name in ${HUB_SUBSCRIPTION}
 	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))
+
+terraform-init: set-azure-account get-hub-subscription-id # Initialise Terraform - make <env> terraform-init
+	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 
 	rm -rf infrastructure/modules/dtos-devops-templates
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_REF} \
