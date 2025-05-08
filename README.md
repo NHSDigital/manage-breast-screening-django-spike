@@ -1,8 +1,6 @@
-# Manage breast screening Django spike
+# Manage breast screening
 
-[![Main branch CI](https://github.com/nhsdigital/manage-breast-screening-django-spike/actions/workflows/cicd-2-main-branch.yaml/badge.svg)](https://github.com/nhsdigital/manage-breast-screening-django-spike/actions/workflows/cicd-2-main-branch.yaml)
-
-This repo is a spike to explore using Django as the framework for our new service.
+[![Main branch CI](https://github.com/nhsdigital/manage-breast-screening/actions/workflows/cicd-2-main-branch.yaml/badge.svg)](https://github.com/nhsdigital/manage-breast-screening/actions/workflows/cicd-2-main-branch.yaml)
 
 The new service is a system for managing breast screening clinics, including:
 
@@ -67,6 +65,10 @@ poetry run ./manage.py createsuperuser
 Then run the app and navigate to `http://localhost:8000/admin`
 
 ## Design
+
+The service will be deployed as a web application, backed by a postgres database with authentication provided by NHS CIS2. In addtion to these elements we will deploy a gateway application to each breast screening unit that uses the service that will be responsible for interop with local hospital systems. The gateway will be developed in a future phase of this project and is not currently under active development.
+
+![](docs/diagrams/container-diagram.png)
 
 ### Structure
 
