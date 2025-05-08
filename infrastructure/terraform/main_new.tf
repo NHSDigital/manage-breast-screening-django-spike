@@ -10,9 +10,9 @@ module "app-key-vault" {
   resource_group_name                              = azurerm_resource_group.main.name
   enable_rbac_authorization                        = true # TODO: make true by default?
   location                                         = local.region
-  log_analytics_workspace_id                       = azurerm_log_analytics_workspace.example.id # TODO: recreate
-  monitor_diagnostic_setting_keyvault_enabled_logs = []                                         # TODO: default empty list
-  monitor_diagnostic_setting_keyvault_metrics      = []                                         # TODO: default empty list
+  log_analytics_workspace_id                       = azurerm_log_analytics_workspace.example.id     # TODO: recreate
+  monitor_diagnostic_setting_keyvault_enabled_logs = ["AuditEvent", "AzurePolicyEvaluationDetails"] # TODO: not required if not creating NSG
+  monitor_diagnostic_setting_keyvault_metrics      = ["AllMetrics"]
   private_endpoint_properties = { # TODO: Some could be default?
     private_dns_zone_ids_keyvault        = [data.azurerm_private_dns_zone.key-vault.id]
     private_endpoint_enabled             = true
