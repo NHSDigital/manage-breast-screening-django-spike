@@ -37,6 +37,20 @@ jobs:
     name: "Unit tests"
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
+    services:
+      postgres:
+        image: postgres:17.4-alpine3.21
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
@@ -58,10 +72,12 @@ jobs:
       - name: "Run unit test suite"
         run: |
           make test-unit
+        env:
+          DATABASE_NAME: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_USER: postgres
+          DATABASE_HOST: localhost
 
-      - name: "Save the result of fast test suite"
-        run: |
-          echo "Nothing to save"
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest

@@ -7,37 +7,36 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # environment:
-    #   - DATABASE_HOST=db
     profiles:
-      - local
+      - test-end-to-end
     ports:
       - 127.0.0.1:8000:8000
     volumes:
       - ./manage_breast_screening:/app/manage_breast_screening
+    depends_on:
+      db:
+        condition: service_healthy
 
-  # db:
-  #   env_file:
-  #     - manage_breast_screening/config/.env
-  #   environment:
-  #     - POSTGRES_DB=${DATABASE_NAME}
-  #     - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-  #     - POSTGRES_USER=${DATABASE_USER}
-  #     - SSLMODE=${DATABASE_SSLMODE}
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
-  #     interval: 10s
-  #     retries: 5
-  #     start_period: 30s
-  #     timeout: 10s
-  #   image: postgres
-  #   ports:
-  #     - 127.0.0.1:5432:5432
-  #   restart: always
-  #   profiles:
-  #     - local
-  #   volumes:
-  #     - postgres_db:/var/lib/postgresql/data
+  db:
+    env_file:
+      - manage_breast_screening/config/.env
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - SSLMODE=${DATABASE_SSLMODE}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    image: postgres:17.4-alpine3.21
+    ports:
+      - 127.0.0.1:5432:5432
+    restart: always
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
 
-# volumes:
-#   postgres_db:
+volumes:
+  postgres_db:

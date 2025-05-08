@@ -66,9 +66,6 @@ COPY --chown=${CONTAINER_USER}:${CONTAINER_GROUP} manage.py ./
 ENV DEBUG=0
 RUN python ./manage.py collectstatic --noinput
 
-# Remove later once we've set up an external DB
-RUN python ./manage.py migrate
-
 EXPOSE 8000
 
 ENTRYPOINT ["/app/.venv/bin/gunicorn", "--bind", "0.0.0.0:8000", "manage_breast_screening.config.wsgi"]
