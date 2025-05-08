@@ -44,6 +44,8 @@ terraform-init: set-azure-account get-hub-subscription-id # Initialise Terraform
 	$(eval export TF_VAR_app_short_name=${APP_SHORT_NAME})
 	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
 	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_hub=${HUB})
+	$(eval export TF_VAR_hub_subscription_id=${HUB_SUBSCRIPTION_ID})
 	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
 
 terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan DOCKER_IMAGE_TAG=abcd123

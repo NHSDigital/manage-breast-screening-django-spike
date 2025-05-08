@@ -3,10 +3,31 @@ resource "azurerm_resource_group" "main" {
   location = local.region
 }
 
+module "app-key-vault" {
+  source = "../modules/dtos-devops-templates/infrastructure/modules/key-vault"
+
+  name                                             = "kv-${var.app_short_name}-${var.environment}"
+  resource_group_name                              = azurerm_resource_group.main.name
+  enable_rbac_authorization                        = true # TODO: make true by default?
+  location                                         = local.region
+  log_analytics_workspace_id                       = azurerm_log_analytics_workspace.example.id # TODO: recreate
+  monitor_diagnostic_setting_keyvault_enabled_logs = []                                         # TODO: default empty list
+  monitor_diagnostic_setting_keyvault_metrics      = []                                         # TODO: default empty list
+  private_endpoint_properties = { # TODO: Some could be default?
+    private_dns_zone_ids_keyvault        = [data.azurerm_private_dns_zone.key-vault.id]
+    private_endpoint_enabled             = true
+    private_endpoint_subnet_id           = module.container_app_subnet
+    private_endpoint_resource_group_name = azurerm_resource_group.main.name
+    private_service_connection_is_manual = false
+  }
+  soft_delete_retention = 0
+}
+
 module "container-app-environment" {
-  source                     = "../modules/dtos-devops-templates/infrastructure/modules/container-app-environment"
+  source = "../modules/dtos-devops-templates/infrastructure/modules/container-app-environment"
+
   name                       = "manage-breast-screening-${var.environment}"
-  resource_group_name        = var.resource_group_name                  # TODO: recreate
+  resource_group_name        = var.resource_group_name                    # TODO: recreate
   log_analytics_workspace_id = azurerm_log_analytics_workspace.example.id # TODO: recreate
   vnet_integration_subnet_id = module.container_app_subnet.id
 }
@@ -22,7 +43,7 @@ module "webapp" {
     "ALLOWED_HOSTS" = "manage-breast-screening-web-${var.environment}.${module.container-app-environment.default_domain}"
   }
   is_web_app = true
-  http_port = 8000
+  http_port  = 8000
 }
 
 # TODO: Create key vault

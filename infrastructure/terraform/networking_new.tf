@@ -26,6 +26,13 @@ module "container_app_subnet" {
   network_security_group_name                                    = "container_app_subnet"                     # TODO: create default name?
 }
 
+data "azurerm_private_dns_zone" "key-vault" {
+  provider = azurerm.hub
+
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = "rg-hub-${var.hub}-uks-private-dns-zones"
+}
+
 # TODO: Create VNET
 # TODO: Peer VNET to hub
 # TODO: Create kv and private endpoint
