@@ -41,6 +41,7 @@ terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
 
+	$(eval export TF_VAR_app_short_name=${APP_SHORT_NAME})
 	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
 	$(eval export TF_VAR_environment=${ENVIRONMENT})
 	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})

@@ -17,6 +17,5 @@ variable "resource_group_name" {
 locals {
   # resource_group_name = "colin-spike"
   region = "uksouth"
-  resource_group_name_new = "rg-${var.app_short_name}-${var.environment
-}-uks"
+  resource_group_name_new = "rg-${var.app_short_name}-${var.environment}-uks"
 }
