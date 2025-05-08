@@ -136,4 +136,6 @@ class Appointment(BaseModel):
     screening_episode = models.ForeignKey(ScreeningEpisode, on_delete=models.CASCADE)
     clinic_slot = models.ForeignKey(ClinicSlot, on_delete=models.CASCADE)
     status = models.CharField(choices=STATUS_CHOICES, max_length=50, default=Status.CONFIRMED)
+    reinvite = models.BooleanField(default=False)
+    stopped_reasons = models.JSONField(null=True, blank=True)
 

@@ -24,8 +24,8 @@ urlpatterns = [
     ),
     path("awaiting-images/", views.awaiting_images, name="awaiting_images"),
     path(
-        "appointment-cannot-go-ahead/",
-        views.AppointmentCannotGoAhead.as_view(),
+        "appointments/<int:pk>/cannot-go-ahead/",
+        views.appointment_cannot_go_ahead,
         name="appointment_cannot_go_ahead",
     ),
 ]

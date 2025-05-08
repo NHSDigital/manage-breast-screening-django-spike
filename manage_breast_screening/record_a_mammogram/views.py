@@ -9,6 +9,7 @@ from .forms import (
     RecordMedicalInformationForm,
     ScreeningAppointmentForm,
 )
+from manage_breast_screening.clinics.models import Appointment
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +53,21 @@ class RecordMedicalInformation(FormView):
             return redirect("record_a_mammogram:appointment_cannot_go_ahead")
 
 
-class AppointmentCannotGoAhead(FormView):
-    template_name = "record_a_mammogram/appointment_cannot_go_ahead.jinja"
-    form_class = AppointmentCannotGoAheadForm
+def appointment_cannot_go_ahead(request, pk):
+    appointment = Appointment.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = AppointmentCannotGoAheadForm(request.POST, instance=appointment)
+        if form.is_valid():
+            form.save()
+            return redirect('clinics:index')
+    else:
+        form = AppointmentCannotGoAheadForm(instance=appointment)
+
+    return render(
+        request,
+        'record_a_mammogram/appointment_cannot_go_ahead.jinja',
+        {'form': form}
+    )
 
 
 def awaiting_images(request):
