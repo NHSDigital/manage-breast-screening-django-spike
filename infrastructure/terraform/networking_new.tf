@@ -8,7 +8,7 @@ module "main_vnet" {
   log_analytics_workspace_id                                     = azurerm_log_analytics_workspace.example.id                                                                   # TODO: recreate
   monitor_diagnostic_setting_vnet_enabled_logs                   = []                                                                                                           # TODO: not required if not creating NSG
   monitor_diagnostic_setting_vnet_metrics                        = []
-  vnet_address_space                                             = [var.vnet_address_space] # Update with real address space
+  vnet_address_space                                             = var.vnet_address_space
 
 }
 
