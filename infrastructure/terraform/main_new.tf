@@ -20,7 +20,7 @@ module "app-key-vault" {
     private_endpoint_resource_group_name = azurerm_resource_group.main.name
     private_service_connection_is_manual = false
   }
-  soft_delete_retention = 0
+  soft_delete_retention = 7 # TODO: Allow disabling soft delete
 }
 
 module "container-app-environment" {
