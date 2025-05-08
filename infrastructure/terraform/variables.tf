@@ -22,6 +22,9 @@ variable "hub_subscription_id" {
   description = "ID of the hub Azure subscription"
 }
 
+variable "vnet_address_space" {
+  description = "VNET address space. Must be unique across the hub."
+}
 locals {
   # resource_group_name = "colin-spike"
   region = "uksouth"

@@ -1,16 +1,27 @@
-# module "main_vnet" {
-#   source = "../modules/dtos-devops-templates/infrastructure/modules/vnet"
+module "main_vnet" {
+  source = "../modules/dtos-devops-templates/infrastructure/modules/vnet"
 
-#   name                                                           = "VNET-DEV-UKS-MANAGE"     # TODO: makae variable
-#   resource_group_name                                            = var.resource_group_name # TODO: recreate
-#   location                                                       = "UK South"
-#   dns_servers                                                    = [data.terraform_remote_state.hub.outputs.private_dns_resolver_inbound_ips[each.key].private_dns_resolver_ip] # Use data source
-#   log_analytics_workspace_id                                     = azurerm_log_analytics_workspace.example.id                                                                   # TODO: recreate
-#   monitor_diagnostic_setting_network_security_group_enabled_logs = []                                                                                                           # TODO: not required if not creating NSG
-#   monitor_diagnostic_setting_vnet_metrics                        = []
-#   vnet_address_space                                             = ["10.0.0.0/16"] # Update with real address space
+  name                                                           = "vnet-${var.environment}-uks-manage"
+  resource_group_name                                            = azurerm_resource_group.main.name
+  location                                                       = local.region
+  dns_servers                                                    = [data.azurerm_private_dns_resolver_inbound_endpoint.this.ip_configurations[0].private_ip_address] # Use data source
+  log_analytics_workspace_id                                     = azurerm_log_analytics_workspace.example.id                                                                   # TODO: recreate
+  monitor_diagnostic_setting_vnet_enabled_logs                   = []                                                                                                           # TODO: not required if not creating NSG
+  monitor_diagnostic_setting_vnet_metrics                        = []
+  vnet_address_space                                             = [var.vnet_address_space] # Update with real address space
 
-# }
+}
+
+data "azurerm_private_dns_resolver" "this" {
+  name                = "${hub}-uks-hub-private-dns-zone-resolver"
+  resource_group_name = "rg-hub-${hub}-uks-private-dns-zones"
+}
+
+data "azurerm_private_dns_resolver_inbound_endpoint" "this" {
+  name                    = "private-dns-resolver-inbound-endpoint"
+  private_dns_resolver_id = data.azurerm_private_dns_resolver.this.id
+}
+
 
 module "container_app_subnet" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/subnet"
