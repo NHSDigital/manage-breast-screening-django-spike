@@ -16,7 +16,7 @@ module "app-key-vault" {
   private_endpoint_properties = { # TODO: Some could be default?
     private_dns_zone_ids_keyvault        = [data.azurerm_private_dns_zone.key-vault.id]
     private_endpoint_enabled             = true
-    private_endpoint_subnet_id           = module.container_app_subnet
+    private_endpoint_subnet_id           = module.container_app_subnet.id
     private_endpoint_resource_group_name = azurerm_resource_group.main.name
     private_service_connection_is_manual = false
   }
