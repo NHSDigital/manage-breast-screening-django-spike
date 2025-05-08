@@ -13,11 +13,15 @@ module "main_vnet" {
 }
 
 data "azurerm_private_dns_resolver" "this" {
+  provider = azurerm.hub
+
   name                = "${var.hub}-uks-hub-private-dns-zone-resolver"
   resource_group_name = "rg-hub-${var.hub}-uks-private-dns-zones"
 }
 
 data "azurerm_private_dns_resolver_inbound_endpoint" "this" {
+  provider = azurerm.hub
+
   name                    = "private-dns-resolver-inbound-endpoint"
   private_dns_resolver_id = data.azurerm_private_dns_resolver.this.id
 }
