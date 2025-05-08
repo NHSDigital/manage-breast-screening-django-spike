@@ -21,7 +21,7 @@ module "container_app_subnet" {
   address_prefixes                                               = ["10.0.4.0/23"]                      # TODO: could be default value?
   create_nsg                                                     = false
   location                                                       = "UK South"                                 # TODO: not required if not creating NSG
-  monitor_diagnostic_setting_network_security_group_enabled_logs = []                                         # TODO: not required if not creating NSG
+  monitor_diagnostic_setting_network_security_group_enabled_logs = ["AuditEvent", "AzurePolicyEvaluationDetails"] # TODO: not required if not creating NSG
   log_analytics_workspace_id                                     = azurerm_log_analytics_workspace.example.id # TODO: recreate
   network_security_group_name                                    = "container_app_subnet"                     # TODO: create default name?
 }
