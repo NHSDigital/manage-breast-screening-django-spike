@@ -1,5 +1,6 @@
-variable "environment" {
-  description = "Application environment name"
+resource "azurerm_resource_group" "main" {
+  name     = local.resource_group_name_new
+  location = local.region
 }
 
 module "container-app-environment" {
