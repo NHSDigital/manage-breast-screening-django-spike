@@ -34,7 +34,7 @@ terraform-init: set-azure-account # Initialise Terraform - make <env> terraform-
 		https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
 
 	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
-		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=resource_group_name=${STORAGE_ACCOUNT_RG} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
 
