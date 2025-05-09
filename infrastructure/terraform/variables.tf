@@ -25,6 +25,11 @@ variable "hub_subscription_id" {
 variable "vnet_address_space" {
   description = "VNET address space. Must be unique across the hub."
 }
+
+variable "fetch_secrets_from_app_key_vault" {
+  description = "Set to false initially to create and populate the app key vault. Then set to true to let the container app read secrets from tne key vault."
+  default     = false
+}
 locals {
   # resource_group_name = "colin-spike"
   region = "uksouth"
