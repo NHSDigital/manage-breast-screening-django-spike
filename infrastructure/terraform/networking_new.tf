@@ -58,7 +58,7 @@ module "peering_hub_spoke" {
   name                = "hub-to-${module.main_vnet.name}-peering"
   resource_group_name = local.hub_vnet_rg_name
   vnet_name           = data.azurerm_virtual_network.hub.name
-  remote_vnet_id      = module.main_vnet.id
+  remote_vnet_id      = module.main_vnet.vnet.id
 
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
