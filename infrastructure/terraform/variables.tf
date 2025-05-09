@@ -29,4 +29,5 @@ locals {
   # resource_group_name = "colin-spike"
   region = "uksouth"
   resource_group_name_new = "rg-${var.app_short_name}-${var.environment}-uks"
+  hub_vnet_rg_name = "rg-hub-${var.hub}-uks-hub-networking"
 }
