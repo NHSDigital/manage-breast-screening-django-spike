@@ -38,7 +38,7 @@ module "webapp" {
   container_app_environment_id = module.container-app-environment.id
   resource_group_name          = azurerm_resource_group.main.name
   # app_key_vault_name           = "kv-colin-spike"
-  app_key_vault_name           = module.app-key-vault.key_vault_name
+  # app_key_vault_name           = module.app-key-vault.key_vault_name
   docker_image                 = var.docker_image
   environment_variables = {
     "ALLOWED_HOSTS" = "manage-breast-screening-web-${var.environment}.${module.container-app-environment.default_domain}"
