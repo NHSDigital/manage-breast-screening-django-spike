@@ -38,6 +38,7 @@ module "webapp" {
   container_app_environment_id = module.container-app-environment.id
   resource_group_name          = azurerm_resource_group.main.name
   # app_key_vault_name           = "kv-colin-spike"
+  fetch_secrets_from_app_key_vault = true
   app_key_vault_id           = module.app-key-vault.key_vault_id
   docker_image                 = var.docker_image
   environment_variables = {
