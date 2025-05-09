@@ -72,7 +72,7 @@ module "container_app_subnet" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/subnet"
 
   name                                                           = "container_app_subnet"
-  resource_group_name                                            = azurerm_resource_group.main
+  resource_group_name                                            = azurerm_resource_group.main.name
   vnet_name                                                      = module.main_vnet.name
   # address_prefixes                                               = ["10.0.4.0/23"]                      # TODO: could be default value?
   address_prefixes                                               = [cidrsubnet(var.vnet_address_space, 7, 0)]                      # TODO: could be default value?
