@@ -12,7 +12,6 @@ RUN apk add --no-cache bash
 # Compile static assets
 COPY package.json package-lock.json ./
 COPY manage_breast_screening ./manage_breast_screening
-COPY scripts/copy_nhsuk_frontend.sh ./scripts/
 RUN npm install --omit=dev
 RUN npm run compile:css
 

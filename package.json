@@ -4,7 +4,20 @@
     "sass": "^1.87.0"
   },
   "scripts": {
+    "compile": "concurrently \"npm run compile:js\" \"npm run compile:css\"",
+    "watch": "concurrently \"npm run compile:js:watch\" \"npm run compile:css:watch\"",
+    "compile:js": "rollup -c rollup.config.mjs --sourcemap",
+    "compile:js:watch": "rollup -c rollup.config.mjs --sourcemap --watch",
     "compile:css": "sass --quiet-deps --silence-deprecation=import --load-path=. --load-path=node_modules manage_breast_screening/assets/sass:manage_breast_screening/assets/compiled/css",
     "compile:css:watch": "sass --quiet-deps --silence-deprecation=import --load-path=. --load-path=node_modules manage_breast_screening/assets/sass:manage_breast_screening/assets/compiled/css --watch"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "concurrently": "^9.1.2",
+    "rollup": "^4.40.2"
   }
 }
