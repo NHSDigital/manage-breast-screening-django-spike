@@ -1,6 +1,7 @@
 import logging
 
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import FormView
 
@@ -62,6 +63,12 @@ class StartScreening(FormView):
             "key": appointment.status,
         }
         context["Status"] = Status
+
+        if appointment.status in [
+            appointment.Status.SCREENED,
+            appointment.Status.PARTIALLY_SCREENED,
+        ]:
+            context["secondary_nav_items"] = build_secondary_nav(appointment.pk)
 
         last_known_screening = appointment.screening_episode.previous()
 
@@ -127,3 +134,19 @@ def check_in(request, id):
     appointment.save()
 
     return redirect("record_a_mammogram:start_screening", id=id)
+
+
+def build_secondary_nav(id):
+    """
+    Build a secondary nav for reviewing the information of screened/partially screened appointments.
+    """
+    return [
+        {
+            "id": "all",
+            "text": "Appointment details",
+            "href": reverse("record_a_mammogram:start_screening", kwargs={"id": id}),
+            "current": True,
+        },
+        {"id": "medical_information", "text": "Medical information", "href": "#"},
+        {"id": "images", "text": "Images", "href": "#"},
+    ]

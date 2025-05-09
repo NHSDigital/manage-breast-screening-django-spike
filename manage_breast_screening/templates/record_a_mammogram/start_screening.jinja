@@ -4,6 +4,7 @@
 {% from '_components/appointment-status/macro.jinja' import appointmentStatus %}
 {% from '_components/appointment-header/macro.jinja' import appointmentHeader %}
 {% from '_components/participant-details/macro.jinja' import participantDetails %}
+{% from '_components/secondary-navigation/macro.jinja' import appSecondaryNavigation %}
 
 {% set caption = clinic_slot.clinic.get_type_display() | capitalize ~ " appointment" %}
 {% set title = participant.first_name ~ " " ~ participant.last_name %}
@@ -32,6 +33,13 @@
 
 {% block stepContent %}
   {{ appointmentHeader(appointment) }}
+
+  {% if secondary_nav_items %}
+    {{ appSecondaryNavigation({
+    "visuallyHiddenTitle": "Secondary menu",
+    "items": secondary_nav_items
+    }) }}
+  {% endif %}
 
   {% set specialAppointmentHtml %}
     {% if participant.extra_needs | length > 1 %}
