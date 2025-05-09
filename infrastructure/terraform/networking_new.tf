@@ -53,7 +53,7 @@ module "peering_hub_spoke" {
     azurerm = azurerm.hub
   }
 
-  source = "../dtos-devops-templates/infrastructure/modules/vnet-peering"
+  source = "../modules/dtos-devops-templates/infrastructure/modules/vnet-peering"
 
   name                = "hub-to-${module.main_vnet.name}-peering"
   resource_group_name = local.hub_vnet_rg_name
