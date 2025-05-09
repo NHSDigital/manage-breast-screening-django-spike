@@ -13,6 +13,7 @@ module "app-key-vault" {
   log_analytics_workspace_id                       = azurerm_log_analytics_workspace.example.id     # TODO: recreate
   monitor_diagnostic_setting_keyvault_enabled_logs = ["AuditEvent", "AzurePolicyEvaluationDetails"] # TODO: not required if not creating NSG
   monitor_diagnostic_setting_keyvault_metrics      = ["AllMetrics"]
+  rbac_roles = ["Key Vault Secrets User"]
   private_endpoint_properties = { # TODO: Some could be default?
     private_dns_zone_ids_keyvault        = [data.azurerm_private_dns_zone.key-vault.id]
     private_endpoint_enabled             = true
