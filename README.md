@@ -55,6 +55,14 @@ Python dependencies are managed via [poetry](https://python-poetry.org/docs/basi
 
 You can run `make dependencies` to install anything that's missing after pulling new changes from GitHub.
 
+### Frontend assets
+
+To compile assets, run `npm run compile`
+
+To watch for changes, run `npm run watch`
+
+This will compile scss files to css and bundle javascripts with [rollup.js](https://rollupjs.org/).
+
 ### Django admin
 We'll probably remove it before deploying to production, but currently Django admin is enabled.
 

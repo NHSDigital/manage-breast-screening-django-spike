@@ -9,7 +9,7 @@ config: manage_breast_screening/config/.env _install-dependencies githooks-confi
 dependencies: # Install dependencies needed to build and test the project @Pipeline
 	poetry install
 	npm install
-	npm run compile:css
+	npm run compile
 
 build: # Build the project artefact @Pipeline
 	docker build -t "app:$$(git rev-parse HEAD)" .
