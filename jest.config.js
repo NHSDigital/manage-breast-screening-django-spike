@@ -12,10 +12,7 @@ export default {
   reporters: ['default', 'github-actions'],
 
   cacheDirectory: '<rootDir>/.cache/jest',
-  coveragePathIgnorePatterns: [
-    '.eslintrc.js',
-    '.test.(js|mjs)',
-  ],
+  coveragePathIgnorePatterns: ['.eslintrc.js', '.test.(js|mjs)'],
 
   // Enable Babel transforms until Jest supports ESM and `import()`
   // See: https://jestjs.io/docs/ecmascript-modules
@@ -23,7 +20,14 @@ export default {
     '^.+\\.(js|cjs)$': ['babel-jest', { rootMode: 'upward' }]
   },
 
-  testEnvironment: 'jsdom'
+  testEnvironment: 'jsdom',
+
+  setupFilesAfterEnv: ['<rootDir>/jest-setup.js'],
+
+  resetMocks: true,
+  resetModules: true,
+  restoreMocks: true,
+  clearMocks: true
 }
 
 /**

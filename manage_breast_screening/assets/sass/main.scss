@@ -1,11 +1,11 @@
 // Import NHS.UK frontend library
-@import 'nhsuk-frontend/packages/nhsuk';
+@import "nhsuk-frontend/packages/nhsuk";
 
 // Components that are not in the NHS.UK frontend library
-@import 'components/button';
-@import 'components/count';
-@import 'components/appointment-status';
-@import 'components/secondary-navigation';
+@import "components/button";
+@import "components/count";
+@import "components/appointment-status";
+@import "components/secondary-navigation";
 
 h1 {
   @extend %nhsuk-heading-l;
@@ -21,4 +21,8 @@ h3 {
 
 .app-text-grey {
   color: $nhsuk-secondary-text-color;
+}
+
+[hidden] {
+  display: none;
 }
