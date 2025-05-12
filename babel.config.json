@@ -8,5 +8,10 @@
         "loose": true
       }
     ]
-  ]
+  ],
+  "env": {
+    "test": {
+      "browserslistEnv": "node"
+    }
+  }
 }
