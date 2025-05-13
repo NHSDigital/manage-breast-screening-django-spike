@@ -1,79 +1,62 @@
-# This file is for you! Edit it to implement your own Terraform make targets.
+DOCKER_IMAGE=ghcr.io/nhsdigital/manage-breast-screening
+REGION=UK South
+APP_SHORT_NAME=manbrs
+STORAGE_ACCOUNT_RG=rg-dtos-state-files
 
-# ==============================================================================
-# Custom implementation - implementation of a make target should not exceed 5 lines of effective code.
-# In most cases there should be no need to modify the existing make targets.
+dev: # Target the dev environment - make dev <action>
+	$(eval include infrastructure/environments/dev/variables.sh)
 
-TF_ENV ?= dev
-STACK ?= ${stack}
-TERRAFORM_STACK ?= $(or ${STACK}, infrastructure/environments/${TF_ENV})
-dir ?= ${TERRAFORM_STACK}
+ci: # Skip manual approvals when running in CI - make ci <env> <action>
+	$(eval AUTO_APPROVE=-auto-approve)
+	$(eval SKIP_AZURE_LOGIN=true)
 
-terraform-init: # Initialise Terraform - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform init command, default is none/empty] @Development
-	make _terraform cmd="init" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+set-azure-account: # Set the Azure account for the environment - make <env> set-azure-account
+	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-terraform-plan: # Plan Terraform changes - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform plan command, default is none/empty] @Development
-	make _terraform cmd="plan" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+resource-group-init: get-subscription-ids # Initialise the resource group - make <env> resource-group-init
+	$(eval STORAGE_ACCOUNT_NAME=sa${APP_SHORT_NAME}${ENV_CONFIG}tfstate)
 
-terraform-apply: # Apply Terraform changes - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform apply command, default is none/empty] @Development
-	make _terraform cmd="apply" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+	$(eval output='$(shell az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
+		--subscription ${HUB_SUBSCRIPTION_ID} \
+		--parameters enableSoftDelete=${ENABLE_SOFT_DELETE} envConfig=${ENV_CONFIG} region="${REGION}" \
+			storageAccountRGName=${STORAGE_ACCOUNT_RG}  storageAccountName=${STORAGE_ACCOUNT_NAME} appShortName=${APP_SHORT_NAME})')
 
-terraform-destroy: # Destroy Terraform resources - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform destroy command, default is none/empty] @Development
-	make _terraform \
-		cmd="destroy" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+	$(eval miName=$(shell echo ${output}| jq -r '.properties.outputs.miName.value'))
+	$(eval miPrincipalID=$(shell echo ${output}| jq -r '.properties.outputs.miPrincipalID.value'))
 
-terraform-fmt: # Format Terraform files - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform fmt command, default is '-recursive'] @Quality
-	make _terraform cmd="fmt" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/core.bicep \
+		--subscription ${ARM_SUBSCRIPTION_ID} \
+		--parameters miName=${miName} miPrincipalId=${miPrincipalID} --confirm-with-what-if
 
-terraform-validate: # Validate Terraform configuration - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], terraform_opts|opts=[options to pass to the Terraform validate command, default is none/empty] @Quality
-	make _terraform cmd="validate" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+get-subscription-ids: # Retrieve the hub subscription ID based on the subscription name in ${HUB_SUBSCRIPTION} - make <env> get-subscription-ids
+	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))
+	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 
-clean:: # Remove Terraform files (terraform) - optional: terraform_dir|dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set] @Operations
-	make _terraform cmd="clean" \
-		dir=$(or ${terraform_dir}, ${dir}) \
-		opts=$(or ${terraform_opts}, ${opts})
+terraform-init: set-azure-account get-subscription-ids # Initialise Terraform - make <env> terraform-init
+	$(eval STORAGE_ACCOUNT_NAME=samanbrs${ENV_CONFIG}tfstate)
+	$(eval export ARM_USE_AZUREAD=true)
 
-_terraform: # Terraform command wrapper - mandatory: cmd=[command to execute]; optional: dir=[path to a directory where the command will be executed, relative to the project's top-level directory, default is one of the module variables or the example directory, if not set], opts=[options to pass to the Terraform command, default is none/empty]
-	dir=$(or ${dir}, ${TERRAFORM_STACK})
-	source scripts/terraform/terraform.lib.sh
-	terraform-${cmd} # 'dir' and 'opts' are accessible by the function as environment variables, if set
+	rm -rf infrastructure/modules/dtos-devops-templates
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_REF} \
+		https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
 
-# ==============================================================================
-# Quality checks - please DO NOT edit this section!
+	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
+		-backend-config=subscription_id=${HUB_SUBSCRIPTION_ID} \
+		-backend-config=resource_group_name=${STORAGE_ACCOUNT_RG} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}.tfstate
 
-terraform-shellscript-lint: # Lint all Terraform module shell scripts @Quality
-	for file in $$(find scripts/terraform -type f -name "*.sh"); do
-		file=$${file} scripts/shellscript-linter.sh
-	done
+	$(eval export TF_VAR_app_short_name=${APP_SHORT_NAME})
+	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_hub=${HUB})
+	$(eval export TF_VAR_hub_subscription_id=${HUB_SUBSCRIPTION_ID})
 
-# ==============================================================================
-# Configuration - please DO NOT edit this section!
+terraform-plan: terraform-init # Plan Terraform changes - make <env> terraform-plan DOCKER_IMAGE_TAG=abcd123
+	terraform -chdir=infrastructure/terraform plan -var-file ../environments/${ENV_CONFIG}/variables.tfvars
 
-terraform-install: # Install Terraform @Installation
-	make _install-dependency name="terraform"
+terraform-apply: terraform-init # Apply Terraform changes - make <env> terraform-apply DOCKER_IMAGE_TAG=abcd123
+	terraform -chdir=infrastructure/terraform apply -var-file ../environments/${ENV_CONFIG}/variables.tfvars ${AUTO_APPROVE}
 
-# ==============================================================================
-
-${VERBOSE}.SILENT: \
-	_terraform \
-	clean \
-	terraform-apply \
-	terraform-destroy \
-	terraform-fmt \
-	terraform-init \
-	terraform-install \
-	terraform-plan \
-	terraform-shellscript-lint \
-	terraform-validate \
+terraform-destroy: terraform-init # Destroy Terraform resources - make <env> terraform-destroy
+	terraform -chdir=infrastructure/terraform destroy -var-file ../environments/${ENV_CONFIG}/variables.tfvars ${AUTO_APPROVE}
