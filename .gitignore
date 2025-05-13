@@ -27,3 +27,6 @@ manage_breast_screening/assets/compiled
 # jest
 .cache
 coverage
+
+# MacOS Finder hidden files
+.DS_Store
