@@ -7,3 +7,4 @@ nodejs v22.14.0
 # docker/ghcr.io/gitleaks/gitleaks v8.18.0@sha256:fd2b5cab12b563d2cc538b14631764a1c25577780e3b7dba71657d58da45d9d9 # SEE: https://github.com/gitleaks/gitleaks/pkgs/container/gitleaks
 # docker/ghcr.io/anchore/grype v0.87.0@sha256:7638bec6a2a2b570588bb96e5e9632ef37f5556e92d126eb1a9542a76f71471c # SEE: https://github.com/anchore/grype/pkgs/container/grype
 # docker/ghcr.io/anchore/syft v0.92.0@sha256:63c60f0a21efb13e80aa1359ab243e49213b6cc2d7e0f8179da38e6913b997e0 # SEE: https://github.com/anchore/syft/pkgs/container/syft
+terraform 1.7.0
