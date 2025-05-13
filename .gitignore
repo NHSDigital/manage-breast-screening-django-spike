@@ -22,3 +22,7 @@ staticfiles/
 # npm
 node_modules/
 manage_breast_screening/assets/compiled
+
+# Please, add your custom content below!
+.DS_Store
+infrastructure/modules/dtos-devops-templates/
