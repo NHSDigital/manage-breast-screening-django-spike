@@ -1,0 +1,11 @@
+name: Test 2
+
+on:
+  pull_request:
+
+jobs:
+  test2:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test 2
+      run: echo This is bad
