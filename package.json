@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "nhsuk-frontend": "^9.4.1"
+    "nhsuk-frontend": "^9.5.1"
   },
   "engines": {
     "node": "^20.9.0 || ^22.11.0"
