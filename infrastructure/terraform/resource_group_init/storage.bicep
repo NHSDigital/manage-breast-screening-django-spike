@@ -21,6 +21,23 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   }
 }
 
+// TODO: create managed identity
+
+// TODO: managed id assignments: Contributor / core + storage blob data contributor to sub / hub SA
+// resource MIroleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+//   scope: resourceSymbolicName or scope
+//   name: 'string'
+//   properties: {
+//     condition: 'string'
+//     conditionVersion: 'string'
+//     delegatedManagedIdentityResourceId: 'string'
+//     description: 'string'
+//     principalId: 'string'
+//     principalType: 'string'
+//     roleDefinitionId: 'string'
+//   }
+// }
+
 // Create the blob service
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2024-01-01' = {
   parent: storageAccount
