@@ -1,0 +1,14 @@
+name: Test 5 target
+
+on:
+  pull_request_target:
+
+jobs:
+  test4:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test 4
+      run: |
+        echo DOESNT_EXIST=${{secrets.DOESNT_EXIST}}
+        echo TEST5=${{secrets.TEST5}}
+        echo This is bad!!!
