@@ -27,7 +27,7 @@ get-hub-subscription-id: # Retrieve the hub subscription ID based on the subscri
 terraform-init: set-azure-account get-hub-subscription-id # Initialise Terraform - make <env> terraform-init
 	$(if ${ARM_SUBSCRIPTION_ID},,$(eval export ARM_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv)))
 	$(eval STORAGE_ACCOUNT_NAME=samanbrs${ENV_CONFIG}tfstate)
-	$(eval ARM_USE_AZUREAD=true)
+	$(eval export ARM_USE_AZUREAD=true)
 
 	rm -rf infrastructure/modules/dtos-devops-templates
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_REF} \
