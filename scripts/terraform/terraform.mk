@@ -3,7 +3,7 @@ REGION=UK South
 APP_SHORT_NAME=manbrs
 STORAGE_ACCOUNT_RG=rg-dtos-state-files
 
-dev:
+dev: # Target the dev environment
 	$(eval include infrastructure/environments/dev/variables.sh)
 
 ci:

@@ -89,7 +89,3 @@ data "azurerm_private_dns_zone" "key-vault" {
   name                = "privatelink.vaultcore.azure.net"
   resource_group_name = "rg-hub-${var.hub}-uks-private-dns-zones"
 }
-
-# TODO: Create VNET
-# TODO: Peer VNET to hub
-# TODO: Create kv and private endpoint
