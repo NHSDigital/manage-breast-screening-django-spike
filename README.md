@@ -107,6 +107,31 @@ To generate a new app, run:
 poetry run ./manage.py startapp <app_name> manage_breast_screening/`
 ```
 
+## Deployment
+The build pipeline builds and pushes a docker image to [Github container registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry). The app is deployed to an [Azure container app](https://azure.microsoft.com/en-us/products/container-apps) using terraform.
+
+For each environment, e.g. 'dev':
+1. Connect to [Azure virtual desktop](https://azure.microsoft.com/en-us/products/virtual-desktop). Ask the platform team for access with Administrator role.
+1. If not present, install the following software: terraform (version 1.7.0), git, make.
+    - Run a Command prompt as administrator
+    - choco install terraform --version 1.7.0
+    - choco install terraform git make
+1. Open git bash
+1. Clone the repository: `git clone https://github.com/NHSDigital/manage-breast-screening.git`
+1. Enter the directory and select the branch, tag, commit...
+1. Login: `az login`
+1. Create the resource group: `make dev resource-group-init`. This is only required when creating the environment from scratch.
+1. Deploy:
+   ```shell
+   make dev terraform-plan DOCKER_IMAGE_TAG=git-sha-af32637e7e6a07e36158dcb8d7ed90be49be1xyz
+   ```
+1. The web app URL will be displayed as output. Copy it into a browser on the AVD to access the app.
+
+## Application secrets
+The app requires secrets provided as environment variables. Terraform creates an Azure key vault and all its secrets are mapped directly to the app as environment variables. Devs can access the key vault to create and update the secrets manually.
+
+Note [the process requires multiple steps](https://github.com/NHSDigital/dtos-devops-templates/tree/main/infrastructure/modules/container-app#key-vault-secrets) to set up an environment initially.
+
 ## Contributing
 
 - Make sure you have `pre-commit` running so that pre-commit hooks run automatically when you commit - this should have been set up automatically when you ran `make config`.
