@@ -90,8 +90,12 @@
         </div>
     </div>
   </form>
+  {% endif %}
 
+  {% if cannot_continue_link %}
+    <p class="nhsuk-u-margin-top-x9"><a class="nhsuk-link nhsuk-link--no-visited-state" href="{{ cannot_continue_link.href }}">{{ cannot_continue_link.text }}</a></p>
   {% endif %}
   </div>
+
 </div>
 {% endblock pageContent %}
