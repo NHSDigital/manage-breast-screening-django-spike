@@ -5,8 +5,6 @@ STORAGE_ACCOUNT_RG=rg-dtos-state-files
 
 dev: # Target the dev environment
 	$(eval include infrastructure/environments/dev/variables.sh)
-int: # Target the int environment
-	$(eval include infrastructure/environments/int/variables.sh)
 
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)

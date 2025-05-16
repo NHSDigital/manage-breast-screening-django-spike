@@ -31,6 +31,10 @@ resource privateEndpointResourceGroup 'Microsoft.Resources/resourceGroups@2024-1
 resource privateDNSZoneRG 'Microsoft.Resources/resourceGroups@2024-11-01' existing = {
   name: privateDNSZoneRGName
 }
+// Retrieve existing managed identity resource group
+resource managedIdentityRG 'Microsoft.Resources/resourceGroups@2024-11-01' existing = {
+  name: managedIdentityRGName
+}
 
 // Create the storage account, blob service and container
 module terraformStateStorageAccount 'storage.bicep' = {
@@ -60,8 +64,8 @@ module storageAccountPrivateEndpoint 'privateEndpoint.bicep' = {
 }
 
 // Create the managed identity for CD
-module managedIdentiy 'managedIdentity.bicep' {
-  scope: managedIdentityRGName
+module managedIdentiy 'managedIdentity.bicep' = {
+  scope: managedIdentityRG
   params: {
     region: region
     appShortName: appShortName
