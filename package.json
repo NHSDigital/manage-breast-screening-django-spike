@@ -21,6 +21,6 @@
     "@rollup/plugin-terser": "^0.4.4",
     "concurrently": "^9.1.2",
     "rollup": "^4.40.2",
-    "sass-embedded": "^1.88.0"
+    "sass-embedded": "^1.89.0"
   }
 }
