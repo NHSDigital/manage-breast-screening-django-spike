@@ -5,6 +5,8 @@ STORAGE_ACCOUNT_RG=rg-dtos-state-files
 
 dev: # Target the dev environment
 	$(eval include infrastructure/environments/dev/variables.sh)
+int: # Target the int environment
+	$(eval include infrastructure/environments/int/variables.sh)
 
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)
@@ -14,12 +16,14 @@ set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
 resource-group-init: get-hub-subscription-id # Initialise the resource group - make <env> resource-group-init
-	$(eval STORAGE_ACCOUNT_NAME=samanbrs${ENV_CONFIG}tfstate)
+	$(eval STORAGE_ACCOUNT_NAME=sa${APP_SHORT_NAME}${ENV_CONFIG}tfstate)
 
 	az deployment sub create --location "${REGION}" --template-file infrastructure/terraform/resource_group_init/main.bicep \
 		--subscription ${HUB_SUBSCRIPTION_ID} \
 		--parameters enableSoftDelete=${ENABLE_SOFT_DELETE} envConfig=${ENV_CONFIG} region="${REGION}" \
 			storageAccountRGName=${STORAGE_ACCOUNT_RG}  storageAccountName=${STORAGE_ACCOUNT_NAME} \
+			appShortName=${APP_SHORT_NAME} \
+		--confirm-with-what-if
 
 get-hub-subscription-id: # Retrieve the hub subscription ID based on the subscription name in ${HUB_SUBSCRIPTION}
 	$(eval HUB_SUBSCRIPTION_ID=$(shell az account show --query id --output tsv --name ${HUB_SUBSCRIPTION}))

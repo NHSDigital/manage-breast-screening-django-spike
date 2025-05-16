@@ -48,7 +48,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-01-01' = {
   }
 }
 
-
+// Register the private endpoint in the private DNS zone
 resource dnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = {
   parent: privateEndpoint
   name: '${storageName}-dns'
