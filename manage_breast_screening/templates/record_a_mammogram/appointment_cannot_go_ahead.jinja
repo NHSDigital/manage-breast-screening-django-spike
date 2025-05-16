@@ -5,6 +5,7 @@
 
 {% set title = "Appointment cannot go ahead" %}
 {% set caption = participant.full_name %}
+{% set decision_legend = "Does the appointment need to be rescheduled?" %}
 
 {% block form %}
 {% macro conditionalCheckboxInput(params) %}
@@ -70,7 +71,5 @@
 {% endif %}
 
 {{ checkboxes(checkbox_params) }}
-
-{% set decision_legend = "Does the appointment need to be rescheduled?" %}
 
 {% endblock form %}
