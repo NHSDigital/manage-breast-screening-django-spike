@@ -5,9 +5,13 @@
       "@babel/preset-env",
       {
         "bugfixes": true,
-        "modules": false,
         "loose": true
       }
     ]
-  ]
+  ],
+  "env": {
+    "test": {
+      "browserslistEnv": "node"
+    }
+  }
 }

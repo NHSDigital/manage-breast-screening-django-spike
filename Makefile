@@ -44,6 +44,7 @@ test: test-unit test-lint # Run all tests @Testing
 
 test-unit: # Run unit tests @Testing
 	poetry run pytest
+	npm test
 
 test-lint: # Lint files @Testing
 	# TODO
