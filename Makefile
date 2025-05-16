@@ -1,4 +1,5 @@
 include scripts/shared.mk
+include scripts/terraform/terraform.mk
 
 clean:: _clean-docker  # Clean-up project resources (main) @Operations
 
