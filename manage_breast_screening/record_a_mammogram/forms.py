@@ -1,5 +1,6 @@
 from django import forms
 
+
 class ScreeningAppointmentForm(forms.Form):
     decision = forms.ChoiceField(
         choices=(
@@ -17,8 +18,8 @@ class ScreeningAppointmentForm(forms.Form):
 class AskForMedicalInformationForm(forms.Form):
     decision = forms.ChoiceField(
         choices=(
-            ("continue", "Yes, mark incomplete sections as ‘none’ or ‘no’"),
-            ("dropout", "No, screening cannot proceed"),
+            ("continue", "Yes"),
+            ("dropout", "No - proceed to imaging"),
         ),
         required=True,
         widget=forms.RadioSelect(),
@@ -31,7 +32,7 @@ class AskForMedicalInformationForm(forms.Form):
 class RecordMedicalInformationForm(forms.Form):
     decision = forms.ChoiceField(
         choices=(
-            ("continue", "Yes, go to medical information"),
+            ("continue", "Yes, mark incomplete sections as ‘none’ or ‘no’"),
             ("dropout", "No, screening cannot proceed"),
         ),
         required=True,
@@ -58,9 +59,9 @@ class AppointmentCannotGoAheadForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        if 'instance' not in kwargs:
+        if "instance" not in kwargs:
             raise ValueError("AppointmentCannotGoAheadForm requires an instance")
-        self.instance = kwargs.pop('instance')
+        self.instance = kwargs.pop("instance")
         super().__init__(*args, **kwargs)
 
         # Dynamically add detail fields for each choice
@@ -72,7 +73,7 @@ class AppointmentCannotGoAheadForm(forms.Form):
         required=True,
         error_messages={
             "required": "A reason for why this appointment cannot continue must be provided"
-        }
+        },
     )
 
     decision = forms.ChoiceField(
@@ -84,22 +85,27 @@ class AppointmentCannotGoAheadForm(forms.Form):
         widget=forms.RadioSelect(),
         error_messages={
             "required": "Select whether the participant needs to be invited for another appointment"
-        }
+        },
     )
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if 'stopped_reasons' in cleaned_data and 'other' in cleaned_data['stopped_reasons']:
-            if not cleaned_data.get('other_details'):
-                self.add_error('other_details', 'Explain why this appointment cannot proceed')
+        if (
+            "stopped_reasons" in cleaned_data
+            and "other" in cleaned_data["stopped_reasons"]
+        ):
+            if not cleaned_data.get("other_details"):
+                self.add_error(
+                    "other_details", "Explain why this appointment cannot proceed"
+                )
         return cleaned_data
 
     def save(self):
         reasons_json = {}
         reasons_json["stopped_reasons"] = self.cleaned_data["stopped_reasons"]
         for field_name, value in self.cleaned_data.items():
-            if field_name.endswith('_details') and value:
+            if field_name.endswith("_details") and value:
                 reasons_json[field_name] = value
         self.instance.stopped_reasons = reasons_json
         self.instance.reinvite = self.cleaned_data["decision"]

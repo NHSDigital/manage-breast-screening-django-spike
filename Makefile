@@ -40,16 +40,16 @@ help: # Print help @Others
 	printf "\nUsage: \033[3m\033[93m[arg1=val1] [arg2=val2] \033[0m\033[0m\033[32mmake\033[0m\033[34m <command>\033[0m\n\n"
 	perl -e '$(HELP_SCRIPT)' $(MAKEFILE_LIST)
 
-test: test-unit test-lint # Run all tests @Testing
+test: test-unit test-ui test-lint # Run all tests @Testing
 
 test-unit: # Run unit tests @Testing
-	poetry run pytest
+	poetry run pytest -m 'not system'
 
 test-lint: # Lint files @Testing
 	# TODO
 
 test-ui: # Run UI tests @Testing
-	# TODO
+	poetry run pytest -m system
 
 run: manage_breast_screening/config/.env # Start the development server @Development
 	poetry run ./manage.py runserver

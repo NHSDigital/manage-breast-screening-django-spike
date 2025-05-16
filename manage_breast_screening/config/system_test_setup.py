@@ -1,7 +1,11 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 import os
+
+import pytest
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from playwright.sync_api import sync_playwright
 
+
+@pytest.mark.system
 class SystemTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
