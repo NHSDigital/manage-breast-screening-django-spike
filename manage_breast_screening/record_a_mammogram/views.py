@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import FormView
 
 from manage_breast_screening.clinics.models import Appointment
+from manage_breast_screening.participants.models import Participant
 
 from ..clinics.models import Appointment
 from .forms import (
@@ -16,6 +17,8 @@ from .forms import (
 )
 
 Status = Appointment.Status
+
+APPOINTMENT_CANNOT_PROCEED = "Appointment cannot proceed"
 
 logger = logging.getLogger(__name__)
 
@@ -107,12 +110,35 @@ class AskForMedicalInformation(FormView):
 
         return Appointment.objects.get(pk=id)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        id = self.kwargs["id"]
+        participant = Participant.objects.get(screeningepisode__appointment__id=id)
+
+        context.update(
+            {
+                "participant": participant,
+                "caption": participant.full_name,
+                "title": "Medical information",
+                "decision_legend": "Has the participant shared any relevant medical information?",
+                "cannot_continue_link": {
+                    "href": reverse(
+                        "record_a_mammogram:appointment_cannot_go_ahead",
+                        kwargs={"id": id},
+                    ),
+                    "text": APPOINTMENT_CANNOT_PROCEED,
+                },
+            }
+        )
+
+        return context
+
     def form_valid(self, form):
         form.save()
 
         appointment = self.get_appointment()
 
-        if form.cleaned_data["decision"] == "continue":
+        if form.cleaned_data["decision"] == "yes":
             return redirect(
                 "record_a_mammogram:record_medical_information", id=appointment.pk
             )

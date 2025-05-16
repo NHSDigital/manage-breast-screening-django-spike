@@ -18,8 +18,8 @@ class ScreeningAppointmentForm(forms.Form):
 class AskForMedicalInformationForm(forms.Form):
     decision = forms.ChoiceField(
         choices=(
-            ("continue", "Yes"),
-            ("dropout", "No - proceed to imaging"),
+            ("yes", "Yes"),
+            ("no", "No - proceed to imaging"),
         ),
         required=True,
         widget=forms.RadioSelect(),

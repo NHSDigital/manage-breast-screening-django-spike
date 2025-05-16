@@ -5,16 +5,17 @@ from pytest_django.asserts import assertContains, assertRedirects
 from manage_breast_screening.clinics.tests.factories import AppointmentFactory
 
 
+@pytest.fixture
+def appointment():
+    return AppointmentFactory.create()
+
+
 @pytest.mark.django_db
 class TestStartScreening:
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        self.appointment = AppointmentFactory.create()
-
-    def test_appointment_continued(self, client):
+    def test_appointment_continued(self, client, appointment):
         response = client.post(
             reverse(
-                "record_a_mammogram:start_screening", kwargs={"id": self.appointment.pk}
+                "record_a_mammogram:start_screening", kwargs={"id": appointment.pk}
             ),
             {"decision": "continue"},
         )
@@ -22,14 +23,14 @@ class TestStartScreening:
             response,
             reverse(
                 "record_a_mammogram:ask_for_medical_information",
-                kwargs={"id": self.appointment.pk},
+                kwargs={"id": appointment.pk},
             ),
         )
 
-    def test_appointment_stopped(self, client):
+    def test_appointment_stopped(self, client, appointment):
         response = client.post(
             reverse(
-                "record_a_mammogram:start_screening", kwargs={"id": self.appointment.pk}
+                "record_a_mammogram:start_screening", kwargs={"id": appointment.pk}
             ),
             {"decision": "dropout"},
         )
@@ -37,14 +38,59 @@ class TestStartScreening:
             response,
             reverse(
                 "record_a_mammogram:appointment_cannot_go_ahead",
-                kwargs={"id": self.appointment.pk},
+                kwargs={"id": appointment.pk},
             ),
         )
 
-    def test_renders_invalid_form(self, client):
+    def test_renders_invalid_form(self, client, appointment):
         response = client.post(
             reverse(
-                "record_a_mammogram:start_screening", kwargs={"id": self.appointment.pk}
+                "record_a_mammogram:start_screening", kwargs={"id": appointment.pk}
+            ),
+            {},
+        )
+        assertContains(response, "There is a problem")
+
+
+@pytest.mark.django_db
+class TestAskForMedicalInformation:
+    def test_continue_to_record(self, client, appointment):
+        response = client.post(
+            reverse(
+                "record_a_mammogram:ask_for_medical_information",
+                kwargs={"id": appointment.pk},
+            ),
+            {"decision": "yes"},
+        )
+        assertRedirects(
+            response,
+            reverse(
+                "record_a_mammogram:record_medical_information",
+                kwargs={"id": appointment.pk},
+            ),
+        )
+
+    def test_continue_to_imaging(self, client, appointment):
+        response = client.post(
+            reverse(
+                "record_a_mammogram:ask_for_medical_information",
+                kwargs={"id": appointment.pk},
+            ),
+            {"decision": "no"},
+        )
+        assertRedirects(
+            response,
+            reverse(
+                "record_a_mammogram:awaiting_images",
+                kwargs={"id": appointment.pk},
+            ),
+        )
+
+    def test_renders_invalid_form(self, client, appointment):
+        response = client.post(
+            reverse(
+                "record_a_mammogram:ask_for_medical_information",
+                kwargs={"id": appointment.pk},
             ),
             {},
         )
@@ -53,18 +99,14 @@ class TestStartScreening:
 
 @pytest.mark.django_db
 class TestCheckIn:
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        self.appointment = AppointmentFactory.create()
-
-    def test_known_redirect(self, client):
+    def test_known_redirect(self, client, appointment):
         response = client.post(
-            reverse("record_a_mammogram:check_in", kwargs={"id": self.appointment.pk}),
+            reverse("record_a_mammogram:check_in", kwargs={"id": appointment.pk}),
             {"next": "start-screening"},
         )
         assertRedirects(
             response,
             reverse(
-                "record_a_mammogram:start_screening", kwargs={"id": self.appointment.pk}
+                "record_a_mammogram:start_screening", kwargs={"id": appointment.pk}
             ),
         )
