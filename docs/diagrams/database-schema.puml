@@ -1,0 +1,150 @@
+@startuml BreastScreeningSystem
+
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+skinparam stereotypeCBackgroundColor White
+skinparam stereotypeCBorderColor Black
+
+hide empty members
+
+class Provider {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - name: String
+}
+
+class Setting {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - name: String
+    - provider_id: UUID <<FK>>
+}
+
+class Clinic {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - setting_id: UUID <<FK>>
+    - starts_at: DateTime
+    - ends_at: DateTime
+    - type: TypeType
+    - risk_type: RiskTypeType
+    - state: StateType
+}
+
+class ClinicSlot {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - clinic_id: UUID <<FK>>
+    - starts_at: DateTime
+    - duration_in_minutes: Integer
+}
+
+class ScreeningEpisode {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - participant_id: UUID <<FK>>
+}
+
+class Appointment {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - screening_episode_id: UUID <<FK>>
+    - clinic_slot_id: UUID <<FK>>
+    - status: StatusType
+    - reinvite: Boolean
+    - stopped_reasons: JSON
+}
+
+class Participant {
+    - id: UUID <<PK>>
+    - created_at: DateTime
+    - updated_at: DateTime
+    - first_name: String
+    - last_name: String
+    - gender: String
+    - nhs_number: String
+    - phone: String
+    - email: String
+    - date_of_birth: Date
+    - ethnic_group: EthnicGroupType
+    - risk_level: String
+    - extra_needs: JSON
+}
+
+class ParticipantAddress {
+    - id: UUID <<PK>>
+    - participant_id: UUID <<FK>>
+    - lines: String
+    - postcode: String
+}
+
+enum TypeType {
+    ASSESSMENT
+    SCREENING
+}
+
+enum RiskTypeType {
+    MIXED_RISK
+    ROUTINE_RISK
+    MOBILE
+}
+
+enum StateType {
+    SCHEDULED
+    IN_PROGRESS
+    CLOSED
+    CANCELLED
+}
+
+enum StatusType {
+    CONFIRMED
+    CANCELLED
+    DID_NOT_ATTEND
+    CHECKED_IN
+    SCREENED
+    PARTIALLY_SCREENED
+    ATTENDED_NOT_SCREENED
+}
+
+enum EthnicGroupType {
+    English, Welsh, Scottish, Northern Irish or British
+    Irish
+    Gypsy or Irish Traveller
+    Any other White background
+    White and Black Caribbean
+    White and Black African
+    White and Asian
+    Any other mixed or multiple ethnic background
+    Indian
+    Pakistani
+    Bangladeshi
+    Chinese
+    Any other Asian background
+    African
+    Caribbean
+    Any other Black, African or Caribbean background
+    Arab
+    Any other ethnic group
+    Prefer not to say
+}
+
+
+Setting "*"--"1" Provider
+Clinic "*"--"1" Setting
+ClinicSlot "*"--"1" Clinic
+ScreeningEpisode "*"--"1" Participant
+Appointment "*"--"1" ScreeningEpisode
+Appointment "*"--"1" ClinicSlot
+ParticipantAddress "1"--"1" Participant
+
+@enduml
