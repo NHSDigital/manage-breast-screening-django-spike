@@ -3,10 +3,19 @@ resource "azurerm_resource_group" "main" {
   location = local.region
 }
 
+module "shared_config" {
+  source = "../modules/dtos-devops-templates/infrastructure/modules/shared-config"
+
+  env = var.environment
+  location = local.region
+  application = var.app_short_name
+}
+
 module "app-key-vault" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/key-vault"
 
-  name                                             = "kv-${var.app_short_name}-${var.environment}"
+  # name                                             = "kv-${var.app_short_name}-${var.environment}"
+  name                                             = module.shared_config.app_key_vault
   resource_group_name                              = azurerm_resource_group.main.name
   enable_rbac_authorization                        = true # TODO: make true by default?
   location                                         = local.region
@@ -26,7 +35,8 @@ module "app-key-vault" {
 module "log_analytics_workspace_audit" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/log-analytics-workspace"
 
-  name     = "law-${var.environment}-${var.app_short_name}"
+  # name     = "law-${var.environment}-${var.app_short_name}"
+  name     = module.shared_config.log-analytics-workspace
   location = local.region
 
   law_sku        = "PerGB2018"

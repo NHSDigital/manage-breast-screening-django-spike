@@ -1,7 +1,8 @@
 module "main_vnet" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/vnet"
 
-  name                                         = "vnet-${var.environment}-uks-manage" # TODO: use var.app_short_name
+  # name                                         = "vnet-${var.environment}-uks-manage" # TODO: use var.app_short_name
+  name                                         = module.shared_config.virtual-network-lowercase
   resource_group_name                          = azurerm_resource_group.main.name
   location                                     = local.region
   dns_servers                                  = [data.azurerm_private_dns_resolver_inbound_endpoint.this.ip_configurations[0].private_ip_address] # Use data source
@@ -30,6 +31,7 @@ data "azurerm_virtual_network" "hub" {
   provider = azurerm.hub
 
   name                = "VNET-${upper(var.hub)}-UKS-HUB"
+  READ from hub shared-config module
   resource_group_name = local.hub_vnet_rg_name
 }
 

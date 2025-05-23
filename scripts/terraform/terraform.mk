@@ -40,11 +40,8 @@ terraform-init: set-azure-account get-subscription-ids # Initialise Terraform - 
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_REF} \
 		https://github.com/NHSDigital/dtos-devops-templates.git infrastructure/modules/dtos-devops-templates
 
-	terraform -chdir=infrastructure/terraform init -upgrade -reconfigure \
-		-backend-config=subscription_id=${HUB_SUBSCRIPTION_ID} \
-		-backend-config=resource_group_name=${STORAGE_ACCOUNT_RG} \
-		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
-		-backend-config=key=${ENVIRONMENT}.tfstate
+	terraform -chdir=infrastructure/terraform init -upgrade \
+		-backend=false
 
 	$(eval export TF_VAR_app_short_name=${APP_SHORT_NAME})
 	$(eval export TF_VAR_docker_image=${DOCKER_IMAGE}:${DOCKER_IMAGE_TAG})
