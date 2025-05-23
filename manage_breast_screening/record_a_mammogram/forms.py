@@ -68,6 +68,12 @@ class AppointmentCannotGoAheadForm(forms.Form):
         for field_name, _ in self.STOPPED_REASON_CHOICES:
             self.fields[f"{field_name}_details"] = forms.CharField(required=False)
 
+        # Ensure that the field order matches the order we want to render in
+        details_fields = [
+            f"{field_name}_details" for field_name, _ in self.STOPPED_REASON_CHOICES
+        ]
+        self.order_fields(["stopped_reasons"] + details_fields + ["decision"])
+
     stopped_reasons = forms.MultipleChoiceField(
         choices=STOPPED_REASON_CHOICES,
         required=True,
