@@ -18,7 +18,7 @@
       {% set ns = namespace(errors=[]) %}
 
       {% for field, messages in form.errors | items %}
-        {% set ns.errors = ns.errors + [{"text": ",".join(messages), "href": "#" ~ field ~ "-error"}] %}
+        {% set ns.errors = ns.errors + [{"text": ",".join(messages), "href": "#" ~ messages.field_id}] %}
       {% endfor %}
 
       {{ errorSummary({
@@ -56,6 +56,7 @@
 
             {{ radios({
               "name": form.decision.html_name,
+              "idPrefix": form.decision.auto_id,
               "fieldset": {
                 "legend": {
                   "text": decision_legend,
@@ -69,6 +70,7 @@
               } if decision_hint,
               "items": [
                 {
+                  "id": form.decision.auto_id,
                   "value": form.decision.field.choices[0][0],
                   "text": form.decision[0].choice_label,
                   "checked": form.decision.value() == form.decision.field.choices[0][0]

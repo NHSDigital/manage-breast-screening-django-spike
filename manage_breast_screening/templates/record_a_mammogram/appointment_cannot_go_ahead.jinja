@@ -6,13 +6,15 @@
 {% block form %}
 {% macro conditionalCheckboxInput(params) %}
   {% set details_field_name = params.field_name + "_details" %}
+  {% set details_field_id = params.details_field.auto_id %}
+  {% set details_value = params.details_field.value() %}
   {% set input_params = {
     "label": {
       "text": "Provide details"
     },
-    "id": details_field_name,
+    "id": details_field_id,
     "name": details_field_name,
-    "value": params.details_value
+    "value": details_field_value
   } %}
   {% if form[details_field_name].errors %}
     {% set error_params = {
@@ -31,12 +33,13 @@
 {% for field_name, label in form.stopped_reasons.field.choices %}
     {% do checkboxItems.append({
       "text": label,
+      "id": form.stopped_reasons.auto_id if loop.first,
       "value": field_name,
       "checked": field_name in (form.stopped_reasons.value() or []),
       "conditional": {
         "html": conditionalCheckboxInput({
           "field_name": field_name,
-          "details_value": form[field_name + "_details"].value()
+          "details_field": form[field_name + "_details"],
         })
       }
     }) %}

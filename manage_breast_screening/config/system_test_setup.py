@@ -2,7 +2,7 @@ import os
 
 import pytest
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import expect, sync_playwright
 
 
 @pytest.mark.system
@@ -27,11 +27,24 @@ class SystemTestCase(StaticLiveServerTestCase):
     def tearDown(self):
         self.page.close()
 
-    def expect_validation_error(self, id: str, fieldset_legend: str, error_text: str):
+    def expect_validation_error(
+        self, label: str, fieldset_legend: str, error_text: str, name: str | None = ""
+    ):
         summary_box = self.page.locator(".nhsuk-error-summary")
-        error_link = summary_box.locator(f"a[href='#{id}']")
-        expect(error_link).to_have_text(error_text)
+        expect(summary_box).to_contain_text(error_text)
 
-        fieldset = self.page.locator('fieldset').filter(has_text=fieldset_legend)
+        error_link = summary_box.get_by_text(error_text)
+        error_link.click()
+
+        fieldset = self.page.locator("fieldset").filter(has_text=fieldset_legend)
         error_span = fieldset.locator("span").filter(has_text=error_text)
-        expect(error_span).to_have_id(id)
+        expect(error_span).to_contain_text(error_text)
+
+        if name:
+            field = fieldset.get_by_label(label).and_(
+                fieldset.locator(f"[name='{name}']")
+            )
+        else:
+            field = fieldset.get_by_label(label)
+
+        expect(field).to_be_focused()

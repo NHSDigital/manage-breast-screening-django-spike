@@ -1,12 +1,17 @@
 import re
+
 import pytest
 from django.urls import reverse
 from playwright.sync_api import expect
 
-from manage_breast_screening.config.system_test_setup import SystemTestCase
-from manage_breast_screening.clinics.tests.factories import AppointmentFactory, ScreeningEpisodeFactory
-from manage_breast_screening.participants.tests.factories import ParticipantFactory
 from manage_breast_screening.clinics.models import Appointment
+from manage_breast_screening.clinics.tests.factories import (
+    AppointmentFactory,
+    ScreeningEpisodeFactory,
+)
+from manage_breast_screening.config.system_test_setup import SystemTestCase
+from manage_breast_screening.participants.tests.factories import ParticipantFactory
+
 
 class TestUserSubmitsCannotGoAheadForm(SystemTestCase):
     @pytest.fixture(autouse=True)
@@ -31,11 +36,12 @@ class TestUserSubmitsCannotGoAheadForm(SystemTestCase):
         self.then_i_see_the_clinics_page()
         self.and_the_appointment_is_updated()
 
-
     def given_i_am_on_the_cannot_go_ahead_form(self):
         self.page.goto(
-            self.live_server_url + reverse(
-                "record_a_mammogram:appointment_cannot_go_ahead", kwargs={"id": self.appointment.pk}
+            self.live_server_url
+            + reverse(
+                "record_a_mammogram:appointment_cannot_go_ahead",
+                kwargs={"id": self.appointment.pk},
             )
         )
 
@@ -44,14 +50,14 @@ class TestUserSubmitsCannotGoAheadForm(SystemTestCase):
 
     def then_i_should_see_validation_errors(self):
         self.expect_validation_error(
-            id="stopped_reasons-error",
-            fieldset_legend="Why has this appointment been stopped?",
             error_text="A reason for why this appointment cannot continue must be provided",
+            fieldset_legend="Why has this appointment been stopped?",
+            label="Participant did not attend",
         )
         self.expect_validation_error(
-            id="decision-error",
+            error_text="Select whether the participant needs to be invited for another appointment",
             fieldset_legend="Does the appointment need to be rescheduled?",
-            error_text="Select whether the participant needs to be invited for another appointment"
+            label="Yes, add participant to reinvite list",
         )
 
     def when_i_select_a_reason_for_the_appointment_being_stopped(self):
@@ -62,23 +68,26 @@ class TestUserSubmitsCannotGoAheadForm(SystemTestCase):
 
     def and_i_choose_to_add_the_participant_to_the_reinvite_list(self):
         self.page.get_by_label("Yes, add participant to reinvite list").click()
-        expect(self.page.get_by_label("Yes, add participant to reinvite list")).to_be_checked()
+        expect(
+            self.page.get_by_label("Yes, add participant to reinvite list")
+        ).to_be_checked()
 
     def then_i_see_an_error_for_other_details(self):
         self.expect_validation_error(
-            id="other_details-error",
-            fieldset_legend="Why has this appointment been stopped?",
             error_text="Explain why this appointment cannot proceed",
+            fieldset_legend="Why has this appointment been stopped?",
+            label="Provide details",
+            name="other_details",
         )
 
     def when_i_fill_in_other_details(self):
-        self.page.locator("#other_details").fill("Explain other choice")
+        self.page.locator("#id_other_details").fill("Explain other choice")
 
     def then_i_see_the_clinics_page(self):
-        expect(self.page).to_have_url(
-            re.compile(reverse("clinics:index"))
-        )
+        expect(self.page).to_have_url(re.compile(reverse("clinics:index")))
 
     def and_the_appointment_is_updated(self):
         self.appointment.refresh_from_db()
-        self.assertEqual(self.appointment.status, Appointment.Status.ATTENDED_NOT_SCREENED)
+        self.assertEqual(
+            self.appointment.status, Appointment.Status.ATTENDED_NOT_SCREENED
+        )
