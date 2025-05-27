@@ -1,0 +1,54 @@
+{% from 'radios/macro.jinja' import radios %}
+{% from "checkboxes/macro.jinja" import checkboxes %}
+{% from 'error-summary/macro.jinja' import errorSummary %}
+
+{% macro form_error_summary(form, title="There is a problem") %}
+    {% if form.errors %}
+      {% set ns = namespace(errors=[]) %}
+
+      {% for field in form %}
+        {% set ns.errors = ns.errors + [{"text": ",".join(field.errors), "href": "#" ~ field.auto_id}] %}
+      {% endfor %}
+      {% for error_list in form.non_field_errors() %}
+        {% set ns.errors = ns.errors + [{"text": ",".join(error_list)}] %}
+      {% endfor %}
+
+      {{ errorSummary({
+        "titleText": title,
+        "errorList": ns.errors
+      }) }}
+    {% endif %}
+{% endmacro %}
+
+{% macro choice_field(field, fieldset=None, hint=None, component=radios) %}
+  {% if field.errors %}
+    {% set error_message = {"text": field.errors | first} %}
+  {% endif %}
+  {% set ns = namespace(items=[]) %}
+  {% for choice in field.field.choices %}
+    {% set ns.items = ns.items + [{
+      "id": field.auto_id if loop.first,
+      "value": choice[0],
+      "text": choice[1],
+      "checked": field.value() == choice[0]
+    }] %}
+  {% endfor %}
+  {{ component({
+    "name": field.html_name,
+    "idPrefix": field.auto_id,
+    "fieldset": fieldset if fieldset,
+    "errorMessage": error_message,
+    "hint": {
+      "html": hint|e
+    } if hint,
+    "items": ns.items
+  }) }}
+{% endmacro %}
+
+{% macro choice_field_to_radios(field, fieldset=None, hint=None) %}
+  {{ choice_field(field=field, fieldset=fieldset, hint=hint, component=radios) }}
+{% endmacro %}
+
+{% macro choice_field_to_checkboxes(field, fieldset=None, hint=None) %}
+  {{ choice_field(field=field, fieldset=fieldset, hint=hint, component=checkboxes) }}
+{% endmacro %}

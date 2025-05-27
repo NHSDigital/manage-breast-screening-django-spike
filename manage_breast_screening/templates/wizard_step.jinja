@@ -3,7 +3,7 @@
 {% from 'button/macro.jinja' import button %}
 {% from 'fieldset/macro.jinja' import fieldset %}
 {% from 'back-link/macro.jinja' import backLink %}
-{% from 'error-summary/macro.jinja' import errorSummary %}
+{% from 'forms/form_helpers.jinja' import choice_field_to_radios, form_error_summary %}
 
 {% block beforeContent %}
 {# Using javascript temporarily - this should be replaced with proper URLs #}
@@ -14,21 +14,7 @@
 {% endblock beforeContent %}
 
 {% block messages %}
-    {% if form.errors %}
-      {% set ns = namespace(errors=[]) %}
-
-      {% for field in form %}
-        {% set ns.errors = ns.errors + [{"text": ",".join(field.errors), "href": "#" ~ field.auto_id}] %}
-      {% endfor %}
-      {% for error_list in form.non_field_errors() %}
-        {% set ns.errors = ns.errors + [{"text": ",".join(error_list)}] %}
-      {% endfor %}
-
-      {{ errorSummary({
-        "titleText": "There is a problem",
-        "errorList": ns.errors
-      }) }}
-    {% endif %}
+  {{ form_error_summary(form) }}
 {% endblock %}
 
 {% block pageContent %}
@@ -53,38 +39,17 @@
           {% block form %}{% endblock form %}
 
           {% if form.decision %}
-            {% if form.decision.errors %}
-              {% set errorMessage = {"text": form.decision.errors | first} %}
-            {% endif %}
-
-            {{ radios({
-              "name": form.decision.html_name,
-              "idPrefix": form.decision.auto_id,
-              "fieldset": {
+            {{ choice_field_to_radios(
+              field=form.decision,
+              fieldset={
                 "legend": {
                   "text": decision_legend,
                   "classes": "nhsuk-fieldset__legend--m",
                   "isPageHeading": false
                 }
               },
-              "errorMessage": errorMessage,
-              "hint": {
-                "html": decision_hint|e
-              } if decision_hint,
-              "items": [
-                {
-                  "id": form.decision.auto_id,
-                  "value": form.decision.field.choices[0][0],
-                  "text": form.decision[0].choice_label,
-                  "checked": form.decision.value() == form.decision.field.choices[0][0]
-                },
-                {
-                  "value": form.decision.field.choices[1][0],
-                  "text": form.decision[1].choice_label,
-                  "checked": form.decision.value() == form.decision.field.choices[1][0]
-                }
-              ]
-            }) }}
+              hint=decision_hint
+            ) }}
           {% endif %}
 
           {{ button({
