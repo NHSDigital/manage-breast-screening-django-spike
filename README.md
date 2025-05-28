@@ -99,6 +99,17 @@ The service will be deployed as a web application, backed by a postgres database
 
 The `manage_breast_screening` directory contains all the Django project code.
 
+### Database Schema
+
+The database schema is automatically updated when changes are made to the models in a pull request. The schema is available in two formats:
+
+1. As a PNG image:
+   ![Database Schema](docs/diagrams/database-schema.png)
+
+2. As a PlantUML file: [database-schema.puml](docs/diagrams/database-schema.puml)
+   - This can be viewed in any PlantUML-compatible editor or IDE
+   - Useful for version control and text-based diffs
+
 `config` is a subpackage containing the configuration. The other subpackages - such as `clinics` - are [Django apps](https://docs.djangoproject.com/en/5.1/ref/applications/). These each represent a bounded context within our overall domain of screening events. Django apps can be built with customisability and extendability in mind, and published as python packages, but we aren't doing that yet.
 
 To generate a new app, run:
