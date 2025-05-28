@@ -27,7 +27,7 @@ This command assumes you have a few things already installed:
 ## Usage
 
 ```sh
-make dev
+make local
 ```
 
 This will start the development instance of postgres (via docker) and serve the app at http://localhost:8000
