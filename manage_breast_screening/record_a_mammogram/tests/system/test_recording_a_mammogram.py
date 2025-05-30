@@ -55,6 +55,19 @@ class TestRecordingAMammogram(SystemTestCase):
         self.when_i_submit_the_form()
         self.then_i_am_prompted_to_confirm_whether_imaging_can_go_ahead()
 
+    def test_accessibility(self):
+        self.given_i_am_on_the_start_screening_page()
+        self.then_the_accessibility_baseline_is_met()
+
+        self.when_i_check_the_participants_identity_and_confirm_the_last_mammogram_date()
+        self.then_the_accessibility_baseline_is_met()
+
+        self.when_i_mark_that_the_participant_shared_medical_information()
+        self.then_the_accessibility_baseline_is_met()
+
+        self.when_i_mark_that_imaging_can_go_ahead()
+        self.then_the_accessibility_baseline_is_met()
+
     def given_i_am_on_the_start_screening_page(self):
         self.page.goto(
             self.live_server_url
@@ -108,6 +121,12 @@ class TestRecordingAMammogram(SystemTestCase):
 
     def when_i_mark_that_the_participant_shared_medical_information(self):
         self.page.get_by_label("Yes").check()
+        self.page.get_by_role("button", name="Continue").click()
+
+    def when_i_mark_that_imaging_can_go_ahead(self):
+        self.page.get_by_label(
+            "Yes, mark incomplete sections as ‘none’ or ‘no’"
+        ).check()
         self.page.get_by_role("button", name="Continue").click()
 
     def then_the_screen_should_show_that_it_is_awaiting_images_from_the_PACS(self):

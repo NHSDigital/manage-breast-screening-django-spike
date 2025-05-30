@@ -5,13 +5,13 @@
 {% from 'back-link/macro.jinja' import backLink %}
 {% from 'error-summary/macro.jinja' import errorSummary %}
 
-{% block before_content %}
+{% block beforeContent %}
 {# Using javascript temporarily - this should be replaced with proper URLs #}
 {{ backLink({
   "href": "javascript:history.back()",
   "text": "Go back"
 }) }}
-{% endblock before_content %}
+{% endblock beforeContent %}
 
 {% block messages %}
     {% if form.errors %}

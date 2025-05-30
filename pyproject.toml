@@ -27,6 +27,7 @@ factory-boy = "^3.3.3"
 time-machine = "^2.16.0"
 pytest-playwright = "^0.7.0"
 ipdb = "^0.13.13"
+axe-playwright-python = "^0.1.4"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

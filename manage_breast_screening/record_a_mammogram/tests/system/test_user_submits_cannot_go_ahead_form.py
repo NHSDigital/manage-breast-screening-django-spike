@@ -36,6 +36,10 @@ class TestUserSubmitsCannotGoAheadForm(SystemTestCase):
         self.then_i_see_the_clinics_page()
         self.and_the_appointment_is_updated()
 
+    def test_accessibility(self):
+        self.given_i_am_on_the_cannot_go_ahead_form()
+        self.then_the_accessibility_baseline_is_met()
+
     def given_i_am_on_the_cannot_go_ahead_form(self):
         self.page.goto(
             self.live_server_url
