@@ -20,9 +20,9 @@ jobs:
 
     - uses: azure/login@v2
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        client-id: 85735519-c39b-470f-857b-172ed9196e0f
+        tenant-id: 50f6071f-bbfe-401a-8803-673748e629e2
+        subscription-id: 67aab2fa-fcc7-49da-9dc6-cb90f0fa0628
 
     - name: Call deployment pipeline
       run: |
