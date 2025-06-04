@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from datetime import timezone as tz
 from unittest.mock import MagicMock
+from uuid import uuid4
 
 import pytest
 import time_machine
@@ -16,6 +17,7 @@ class TestAppointmentPresenter:
     def mock_appointment(self):
         mock = MagicMock(spec=Appointment)
         mock.screening_episode.participant.nhs_number = "99900900829"
+        mock.screening_episode.participant.pk = uuid4()
         return mock
 
     @pytest.mark.parametrize(
