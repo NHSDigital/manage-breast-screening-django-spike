@@ -6,13 +6,9 @@ import pytest
 import time_machine
 
 from manage_breast_screening.clinics.models import ClinicSlot
-from manage_breast_screening.participants.models import (
-    Appointment,
-    Participant,
-    ScreeningEpisode,
-)
+from manage_breast_screening.participants.models import Appointment, ScreeningEpisode
 
-from ..presenters import AppointmentPresenter, ClinicSlotPresenter, ParticipantPresenter
+from ..presenters import AppointmentPresenter, ClinicSlotPresenter
 
 
 class TestAppointmentPresenter:
@@ -106,27 +102,3 @@ class TestClinicSlotPresenter:
             ClinicSlotPresenter(clinic_slot_mock).slot_time_and_clinic_date
             == "9:30am (30 minutes) - 2 January 2025 (4 months, 17 days ago)"
         )
-
-
-class TestParticipantPresenter:
-    @pytest.fixture
-    def mock_participant(self):
-        mock = MagicMock(spec=Participant)
-        mock.nhs_number = "99900900829"
-        return mock
-
-    @pytest.mark.parametrize(
-        "category, formatted",
-        [
-            (
-                "Black, African, Caribbean or Black British",
-                "Black, African, Caribbean or Black British",
-            ),
-            (None, None),
-            ("Any other", "any other"),
-        ],
-    )
-    def test_ethnic_group_category(self, mock_participant, category, formatted):
-        mock_participant.ethnic_group_category.return_value = category
-        result = ParticipantPresenter(mock_participant)
-        assert result.ethnic_group_category == formatted
