@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from datetime import timezone as tz
 from unittest.mock import MagicMock
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 import time_machine
@@ -81,6 +81,17 @@ class TestAppointmentPresenter:
             "location": None,
             "type": None,
         }
+
+    def test_participant_url(self, mock_appointment):
+        mock_appointment.pk = UUID("8e25aa42-9bf2-4d5d-953c-7487579d4a3b")
+        mock_appointment.screening_episode.participant.pk = UUID(
+            "ac1b68ec-06a4-40a0-a016-7108dffe4397"
+        )
+        result = AppointmentPresenter(mock_appointment)
+        assert (
+            result.participant_url
+            == "/participants/ac1b68ec-06a4-40a0-a016-7108dffe4397/?appointment_id=8e25aa42-9bf2-4d5d-953c-7487579d4a3b"
+        )
 
 
 class TestClinicSlotPresenter:
