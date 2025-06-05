@@ -20,7 +20,7 @@
     "watch": "concurrently npm:*:watch --prefix none"
   },
   "dependencies": {
-    "nhsuk-frontend": "^9.5.2"
+    "nhsuk-frontend": "^9.6.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
