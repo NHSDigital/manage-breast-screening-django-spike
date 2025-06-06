@@ -29,7 +29,7 @@ export default ($form, options = {}) => {
     }
 
     /** @type {RequestInit} */
-    const fetchOptions = { method: method, body: new FormData($form) }
+    const fetchOptions = { method, body: new FormData($form) }
 
     // Check for timeout support
     if ('AbortSignal' in window && 'timeout' in AbortSignal) {
