@@ -10,5 +10,6 @@
     "./*.setup.*",
     "**/*.test.*",
     "**/.eslintrc.*"
-  ]
+  ],
+  "exclude": ["eslint.config.js"]
 }

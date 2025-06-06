@@ -131,6 +131,7 @@ For each environment, e.g. 'dev':
 1. The web app URL will be displayed as output. Copy it into a browser on the AVD to access the app.
 
 ## Continuous deployment
+
 When a PR is merged, Github actions securely triggers the deployment pipeline on the Azure devops pool running on the internal network. It currently deploys the dev environment automatically.
 
 Access [Azure devops](https://dev.azure.com/nhse-dtos/dtos-manage-breast-screening/_build?definitionId=86) to see the pipeline.

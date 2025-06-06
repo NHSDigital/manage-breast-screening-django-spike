@@ -2,48 +2,48 @@ trigger: none
 pr: none
 
 parameters:
-- name: commitSHA
-  displayName: Commit SHA
-  type: string
-- name: environments
-  type: object
-  default:
-  - dev
+  - name: commitSHA
+    displayName: Commit SHA
+    type: string
+  - name: environments
+    type: object
+    default:
+      - dev
 
 stages:
-- ${{ each env in parameters.environments }}:
-  - stage: ${{ env }}
-    displayName: Deploy to ${{ env }} environment
-    pool:
-      name: private-pool-dev-uks
-    lockBehavior: sequential
-    isSkippable: false
+  - ${{ each env in parameters.environments }}:
+      - stage: ${{ env }}
+        displayName: Deploy to ${{ env }} environment
+        pool:
+          name: private-pool-dev-uks
+        lockBehavior: sequential
+        isSkippable: false
 
-    jobs:
-    - deployment: DeployApp
-      displayName: Deploy application
-      environment: ${{ env }}
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-            - checkout: self
+        jobs:
+          - deployment: DeployApp
+            displayName: Deploy application
+            environment: ${{ env }}
+            strategy:
+              runOnce:
+                deploy:
+                  steps:
+                    - checkout: self
 
-            - task: TerraformInstaller@1
-              displayName: Install Terraform
-              inputs:
-                terraformVersion: 1.7.0
+                    - task: TerraformInstaller@1
+                      displayName: Install Terraform
+                      inputs:
+                        terraformVersion: 1.7.0
 
-            - task: AzureCLI@2
-              name: RunTerraform
-              inputs:
-                azureSubscription: manbrs-${{ env }}
-                scriptType: bash
-                scriptLocation: inlineScript
-                addSpnToEnvironment: true
-                inlineScript: |
-                  export ARM_TENANT_ID="$tenantId"
-                  export ARM_CLIENT_ID="$servicePrincipalId"
-                  export ARM_OIDC_TOKEN="$idToken"
-                  export ARM_USE_OIDC=true
-                  make ci ${{ env }} terraform-apply DOCKER_IMAGE_TAG=git-sha-${{ parameters.commitSHA }}
+                    - task: AzureCLI@2
+                      name: RunTerraform
+                      inputs:
+                        azureSubscription: manbrs-${{ env }}
+                        scriptType: bash
+                        scriptLocation: inlineScript
+                        addSpnToEnvironment: true
+                        inlineScript: |
+                          export ARM_TENANT_ID="$tenantId"
+                          export ARM_CLIENT_ID="$servicePrincipalId"
+                          export ARM_OIDC_TOKEN="$idToken"
+                          export ARM_USE_OIDC=true
+                          make ci ${{ env }} terraform-apply DOCKER_IMAGE_TAG=git-sha-${{ parameters.commitSHA }}
