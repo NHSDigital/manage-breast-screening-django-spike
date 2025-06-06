@@ -7,6 +7,13 @@ repos:
         args: ['check=staged-changes']
         language: script
         pass_filenames: false
+      - id: generate-erd
+        name: Generate ERD
+        entry: make erd
+        language: system
+        pass_filenames: false
+        files: '.*models\.py$|.*models/.*\.py$'
+        
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
     rev: v0.11.12
