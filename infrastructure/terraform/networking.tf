@@ -71,9 +71,9 @@ module "peering_hub_spoke" {
 module "container_app_subnet" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/subnet"
 
-  name                = "snet-container-apps"
-  resource_group_name = azurerm_resource_group.main.name
-  vnet_name           = module.main_vnet.name
+  name                                                           = "snet-container-apps"
+  resource_group_name                                            = azurerm_resource_group.main.name
+  vnet_name                                                      = module.main_vnet.name
   address_prefixes                                               = [cidrsubnet(var.vnet_address_space, 7, 0)]
   create_nsg                                                     = false
   location                                                       = "UK South"

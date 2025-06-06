@@ -36,8 +36,36 @@ variable "protect_keyvault" {
   default     = true
 }
 
+variable "postgres_backup_retention_days" {
+  description = "The number of days to retain backups for the PostgreSQL Flexible Server."
+  type        = number
+  default     = 30
+}
+
+variable "postgres_geo_redundant_backup_enabled" {
+  description = "Whether geo-redundant backup is enabled for the PostgreSQL Flexible Server."
+  type        = bool
+  default     = true
+}
+
+variable "postgres_sku_name" {
+  default = "B_Standard_B1ms"
+}
+variable "postgres_storage_mb" {
+  default = 32768
+}
+variable "postgres_storage_tier" {
+  default = "P4"
+}
+variable "postgres_sql_admin_group" {
+  description = "The display name of the Azure AD group for PostgreSQL SQL Admins"
+  type        = string
+}
+
 locals {
-  region                  = "uksouth"
-  resource_group_name     = "rg-${var.app_short_name}-${var.environment}-uks"
-  hub_vnet_rg_name        = "rg-hub-${var.hub}-uks-hub-networking"
+  region              = "uksouth"
+  resource_group_name = "rg-${var.app_short_name}-${var.environment}-uks"
+  hub_vnet_rg_name    = "rg-hub-${var.hub}-uks-hub-networking"
+
+  postgres_sql_admin_group = "postgres_manbrs_${var.environment}_uks_admin"
 }

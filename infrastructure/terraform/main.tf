@@ -6,16 +6,16 @@ resource "azurerm_resource_group" "main" {
 module "shared_config" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/shared-config"
 
-  env = var.environment
-  location = local.region
+  env         = var.environment
+  location    = local.region
   application = var.app_short_name
 }
 
 module "hub_config" {
   source = "../modules/dtos-devops-templates/infrastructure/modules/shared-config"
 
-  env = var.hub
-  location = local.region
+  env         = var.hub
+  location    = local.region
   application = "hub"
 }
 
