@@ -1,51 +1,38 @@
-import js from '@eslint/js'
-import importPlugin from 'eslint-plugin-import'
-import jestPlugin from 'eslint-plugin-jest'
+import { defineConfig, globalIgnores } from 'eslint/config'
 import jestDomPlugin from 'eslint-plugin-jest-dom'
+import jestPlugin from 'eslint-plugin-jest'
 import jsdocPlugin from 'eslint-plugin-jsdoc'
 import markdownPlugin from 'eslint-plugin-markdown'
-import nPlugin from 'eslint-plugin-n'
-import promisePlugin from 'eslint-plugin-promise'
+import neostandard from 'neostandard'
 import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
+export default defineConfig(
   // Global ignores
+  globalIgnores([
+    '**/compiled/**',
+    '**/coverage/**',
+    '**/staticfiles/**',
+    'node_modules/**',
+    'CHANGELOG.md'
+  ]),
+
+  // Base configuration with neostandard and TypeScript
   {
-    ignores: [
-      '**/compiled/**',
-      '**/coverage/**',
-      '**/staticfiles/**',
-      'node_modules/**',
-      'CHANGELOG.md'
+    extends: [
+      neostandard(),
+      tseslint.configs.strict,
+      tseslint.configs.stylistic,
+      jsdocPlugin.configs['flat/recommended']
     ]
   },
-
-  // Base JavaScript configuration
-  js.configs.recommended,
-
-  // TypeScript configurations
-  ...tseslint.configs.strict,
-  ...tseslint.configs.stylistic,
 
   // Main configuration for JavaScript/TypeScript files
   {
     files: ['**/*.{cjs,js,mjs}'],
     plugins: {
-      import: importPlugin,
-      jsdoc: jsdocPlugin,
-      n: nPlugin,
-      promise: promisePlugin
+      jsdoc: jsdocPlugin
     },
     rules: {
-      // Import plugin rules
-      'import/order': [
-        'error',
-        {
-          alphabetize: { order: 'asc' },
-          'newlines-between': 'always'
-        }
-      ],
-
       // JSDoc plugin rules
       'jsdoc/check-line-alignment': [
         'warn',
@@ -89,7 +76,8 @@ export default tseslint.config(
 
       // Prefer rules that are type aware
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error']
+      '@typescript-eslint/no-unused-vars': ['error'],
+      '@stylistic/space-before-function-paren': 'off'
     },
     settings: {
       jsdoc: {
@@ -104,17 +92,29 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         HTMLElement: 'readonly',
-        HTMLFormElement: 'readonly'
+        HTMLFormElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        Element: 'readonly',
+        Document: 'readonly',
+        RequestInit: 'readonly',
+        SubmitEvent: 'readonly'
       }
     },
     plugins: {
       jsdoc: jsdocPlugin
+    },
+    settings: {
+      jsdoc: {
+        mode: 'typescript'
+      }
     }
   },
 
   // Jest setup files
   {
-    files: ['jest.setup.js', '**/jest.setup.js']
+    files: ['jest.setup.js', '**/jest.setup.js'],
+    extends: [jestPlugin.configs['flat/recommended']]
   },
 
   // CommonJS modules allow require statements
@@ -145,26 +145,14 @@ export default tseslint.config(
     }
   },
 
-  // Configure ESLint in test files
+  // Jest test files
   {
-    files: [
-      '**/*.test.{cjs,js,mjs}',
-      'jest?(.*).config.*',
-      'jest?(.*).setup.*'
+    files: ['**/*.{test,spec}.{cjs,js,mjs}'],
+    extends: [
+      jestPlugin.configs['flat/recommended'],
+      jestDomPlugin.configs['flat/recommended']
     ],
-    plugins: {
-      jest: jestPlugin,
-      'jest-dom': jestDomPlugin
-    },
-    languageOptions: {
-      globals: {
-        ...jestPlugin.environments.globals.globals
-      }
-    },
     rules: {
-      ...jestPlugin.configs.recommended.rules,
-      ...jestPlugin.configs.style.rules,
-      ...jestDomPlugin.configs.recommended.rules,
       '@typescript-eslint/no-empty-function': 'off',
       'promise/always-return': 'off',
       'promise/catch-or-return': 'off'
@@ -183,13 +171,6 @@ export default tseslint.config(
   // Configure ESLint in Markdown code blocks
   {
     files: ['**/*.md/*.{cjs,js,mjs}'],
-    languageOptions: {
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        console: 'readonly'
-      }
-    },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
       'import/no-unresolved': 'off',
