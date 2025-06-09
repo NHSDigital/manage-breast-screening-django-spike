@@ -11,7 +11,7 @@
     "compile:js": "rollup -c rollup.config.js --sourcemap",
     "compile:js:watch": "npm run compile:js -- --watch",
     "lint": "npm run lint:js && npm run lint:types && npm run lint:prettier",
-    "lint:js": "eslint --cache --cache-location .cache/eslint --cache-strategy content --color --ignore-path .gitignore \"**/*.{cjs,js,md,mjs}\"",
+    "lint:js": "eslint --cache --cache-location .cache/eslint --cache-strategy content --color \"**/*.{cjs,js,md,mjs}\"",
     "lint:js:fix": "npm run lint:js -- --fix",
     "lint:prettier": "prettier --cache --cache-location .cache/prettier --cache-strategy content --color --check .",
     "lint:prettier:fix": "prettier --write .",
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",
+    "@eslint/js": "^9.28.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
@@ -39,10 +40,8 @@
     "axe-core": "^4.10.3",
     "babel-jest": "^29.7.0",
     "concurrently": "^9.1.2",
-    "eslint": "^8.57.1",
+    "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-es-x": "^8.6.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-jest-dom": "^5.5.0",
@@ -56,7 +55,8 @@
     "prettier": "^3.5.3",
     "rollup": "^4.41.1",
     "sass-embedded": "^1.89.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.1"
   },
   "engines": {
     "node": "^20.9.0 || ^22.11.0"
