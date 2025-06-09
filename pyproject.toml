@@ -15,6 +15,7 @@ dependencies = [
   "nhsuk-frontend-jinja (>=0.2.0,<0.3.0)",
   "python-dateutil (>=2.9.0.post0,<3.0.0)",
   "psycopg[binary] (>=3.2.7,<4.0.0)",
+  "django-simple-history (>=3.8.0,<4.0.0)",
 ]
 
 [tool.poetry]

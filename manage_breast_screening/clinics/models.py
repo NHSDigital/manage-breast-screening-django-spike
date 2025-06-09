@@ -3,17 +3,17 @@ from enum import StrEnum
 
 from django.db import models
 
-from ..core.models import BaseModel
+from ..core.models import AuditedModelWithCreatedAndUpdated
 
 
-class Provider(BaseModel):
+class Provider(AuditedModelWithCreatedAndUpdated):
     name = models.TextField()
 
     def __str__(self):
         return f"Provider: {self.name}"
 
 
-class Setting(BaseModel):
+class Setting(AuditedModelWithCreatedAndUpdated):
     name = models.TextField()
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE)
 
@@ -62,7 +62,7 @@ class ClinicQuerySet(models.QuerySet):
         return self.filter(starts_at__date__lt=date.today())
 
 
-class Clinic(BaseModel):
+class Clinic(AuditedModelWithCreatedAndUpdated):
     class State:
         SCHEDULED = "SCHEDULED"
         IN_PROGRESS = "IN_PROGRESS"
@@ -131,7 +131,7 @@ class Clinic(BaseModel):
         }
 
 
-class ClinicSlot(BaseModel):
+class ClinicSlot(AuditedModelWithCreatedAndUpdated):
     clinic = models.ForeignKey(
         Clinic, on_delete=models.CASCADE, related_name="clinic_slots"
     )

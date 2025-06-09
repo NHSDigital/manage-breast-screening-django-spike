@@ -1,4 +1,5 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Appointment, Participant, ParticipantAddress, ScreeningEpisode
 
@@ -7,11 +8,11 @@ class AddressInline(admin.TabularInline):
     model = ParticipantAddress
 
 
-class ParticipantAdmin(admin.ModelAdmin):
+class ParticipantAdmin(SimpleHistoryAdmin):
     inlines = [AddressInline]
 
 
-class AppointmentAdmin(admin.ModelAdmin):
+class AppointmentAdmin(SimpleHistoryAdmin):
     list_display = [
         "name",
         "clinic_slot__starts_at",

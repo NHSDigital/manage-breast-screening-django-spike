@@ -4,7 +4,7 @@ from datetime import date
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
-from ..core.models import BaseModel
+from ..core.models import AuditedModelWithCreatedAndUpdated
 
 # List of ethnic groups from
 # https://design-system.service.gov.uk/patterns/equality-information/
@@ -38,7 +38,7 @@ ETHNIC_GROUPS = {
 }
 
 
-class Participant(BaseModel):
+class Participant(AuditedModelWithCreatedAndUpdated):
     PREFER_NOT_TO_SAY = "Prefer not to say"
     ETHNIC_GROUP_CHOICES = [
         (group, group) for groups in ETHNIC_GROUPS.values() for group in groups
@@ -87,7 +87,7 @@ class ParticipantAddress(models.Model):
     postcode = models.CharField(blank=True, null=True)
 
 
-class ScreeningEpisode(BaseModel):
+class ScreeningEpisode(AuditedModelWithCreatedAndUpdated):
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
 
     def screening_history(self):
@@ -114,7 +114,7 @@ class ScreeningEpisode(BaseModel):
             return None
 
 
-class Appointment(BaseModel):
+class Appointment(AuditedModelWithCreatedAndUpdated):
     class Status:
         CONFIRMED = "CONFIRMED"
         CANCELLED = "CANCELLED"
