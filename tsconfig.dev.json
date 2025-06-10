@@ -4,12 +4,5 @@
     "strictNullChecks": false,
     "types": ["@testing-library/jest-dom", "jest", "node"]
   },
-  "include": [
-    "./.prettierrc.*",
-    "./*.config.*",
-    "./*.setup.*",
-    "**/*.test.*",
-    "**/.eslintrc.*"
-  ],
-  "exclude": ["eslint.config.js"]
+  "include": ["./.prettierrc.*", "./*.config.*", "./*.setup.*", "**/*.test.*"]
 }
