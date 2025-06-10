@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
+    "esModuleInterop": true,
     "module": "Preserve",
     "moduleResolution": "Node",
     "noEmit": true,
