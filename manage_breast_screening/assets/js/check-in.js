@@ -57,6 +57,6 @@ export function initCheckIn(options = {}) {
   const $elements = $scope.querySelectorAll('[data-module="app-check-in"]')
 
   $elements.forEach(($root) => {
-    new CheckIn($root) // eslint-disable-line no-new
+    new CheckIn($root)
   })
 }
