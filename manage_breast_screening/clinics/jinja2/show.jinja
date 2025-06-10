@@ -1,0 +1,26 @@
+{% extends 'layout-app.jinja' %}
+
+{% from 'back-link/macro.jinja' import backLink %}
+{% from 'tag/macro.jinja' import tag %}
+{% from 'components/secondary-navigation/macro.jinja' import app_secondary_navigation %}
+
+{% block beforeContent %}
+{{ backLink({
+  "href": "javascript:history.back()",
+  "text": "Go back"
+}) }}
+{% endblock beforeContent %}
+
+{% block page_content %}
+    <h1 class="nhsuk-heading-l">
+        <span class="nhsuk-caption-l">{{ presented_clinic.setting_name }}</span>
+        {{ presented_clinic.risk_type }} screening clinic
+
+        {{ tag({
+            "html": presented_clinic.state.text | no_wrap,
+            "classes": presented_clinic.state.classes
+        })}}
+    </h1>
+
+    <p>{{ presented_clinic.time_range }} - {{ presented_clinic.starts_at }}</p>
+{% endblock %}
