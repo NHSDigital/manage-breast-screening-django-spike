@@ -44,7 +44,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-es-x": "^8.6.2",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-jest": "^28.13.3",
     "eslint-plugin-jest-dom": "^5.5.0",
     "eslint-plugin-jsdoc": "^50.6.11",
     "eslint-plugin-markdown": "^5.1.0",
