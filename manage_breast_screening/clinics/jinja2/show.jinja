@@ -1,6 +1,7 @@
 {% extends 'layout-app.jinja' %}
 
 {% from 'back-link/macro.jinja' import backLink %}
+{% from 'tables/macro.jinja' import table %}
 {% from 'tag/macro.jinja' import tag %}
 {% from 'components/count/macro.jinja' import appCount %}
 {% from 'components/secondary-navigation/macro.jinja' import app_secondary_navigation %}
@@ -13,35 +14,90 @@
 {% endblock beforeContent %}
 
 {% block page_content %}
-    <h1 class="nhsuk-heading-l">
-        <span class="nhsuk-caption-l">{{ presented_clinic.setting_name }}</span>
-        {{ presented_clinic.risk_type }} screening clinic
+  <h1 class="nhsuk-heading-l">
+      <span class="nhsuk-caption-l">{{ presented_clinic.setting_name }}</span>
+      {{ presented_clinic.risk_type }} screening clinic
 
-        {{ tag({
-            "html": presented_clinic.state.text | no_wrap,
-            "classes": presented_clinic.state.classes
-        })}}
-    </h1>
-    <p>{{ presented_clinic.time_range }} - {{ presented_clinic.starts_at }}</p>
+      {{ tag({
+          "html": presented_clinic.state.text | no_wrap,
+          "classes": presented_clinic.state.classes
+      })}}
+  </h1>
+  <p>{{ presented_clinic.time_range }} - {{ presented_clinic.starts_at }}</p>
 
-    {% set ns = namespace() %}
-    {% set ns.secondaryNavItems = [] %}
-    {% for item in [
-      { "filter": 'remaining', "label": 'Remaining' },
-      { "filter": 'checked_in', "label": 'Checked in' },
-      { "filter": 'complete', "label": 'Complete' },
-      { "filter": 'all', "label": 'All' }
-    ] %}
-    {% set href %}/clinics/{{ presented_clinic.id }}/{{ item.filter }}{% endset %}
-    {% set ns.secondaryNavItems = ns.secondaryNavItems + [{
-      "text": (item.label + " " + appCount(presented_appointment_list.counts_by_filter[item.filter])) | safe,
-      "href": href | trim,
-      "current": true if item.filter == presented_appointment_list.filter
-    }] %}
-    {% endfor %}
+  {% set ns = namespace() %}
+  {% set ns.secondaryNavItems = [] %}
+  {% for item in [
+    { "filter": 'remaining', "label": 'Remaining' },
+    { "filter": 'checked_in', "label": 'Checked in' },
+    { "filter": 'complete', "label": 'Complete' },
+    { "filter": 'all', "label": 'All' }
+  ] %}
+  {% set href %}/clinics/{{ presented_clinic.id }}/{{ item.filter }}{% endset %}
+  {% set ns.secondaryNavItems = ns.secondaryNavItems + [{
+    "text": (item.label + " " + appCount(presented_appointment_list.counts_by_filter[item.filter])) | safe,
+    "href": href | trim,
+    "current": true if item.filter == presented_appointment_list.filter
+  }] %}
+  {% endfor %}
 
-    {{ app_secondary_navigation({
-      "visuallyHiddenTitle": "Secondary menu",
-      "items": ns.secondaryNavItems
-    }) }}
+  {{ app_secondary_navigation({
+    "visuallyHiddenTitle": "Secondary menu",
+    "items": ns.secondaryNavItems
+  }) }}
+
+  {% set table_rows = [] %}
+  {% for presented_appointment in presented_appointment_list.appointments %}
+    {% set details_html %}
+      <p class="nhsuk-u-margin-bottom-1">
+        <a href="{{ url('mammograms:start_screening', kwargs={"id": presented_appointment.id}) }}" class="nhsuk-link">
+          {{ presented_appointment.participant.full_name }}
+        </a>
+      </p>
+      <p class="app-text-grey nhsuk-u-margin-bottom-0">
+        NHS:  {{ presented_appointment.participant.nhs_number }}
+      </p>
+    {% endset %}
+    {% set date_of_birth_html %}
+      {{ presented_appointment.participant.date_of_birth }}<br>
+      <span class="nhsuk-hint">({{ presented_appointment.participant.age }})</span>
+    {% endset %}
+    {% do table_rows.append([
+      {
+        "text": presented_appointment.start_time
+      },
+      {
+        "html": details_html
+      },
+      {
+        "text": date_of_birth_html
+      },
+      {
+        "html": tag({
+          "html": presented_appointment.status.text,
+          "classes": presented_appointment.status.classes
+        })
+      }
+    ]) %}
+  {% endfor %}
+
+  {{ table({
+    "head": [
+      {
+        "text": "Time"
+      },
+      {
+        "text": "Details"
+      },
+      {
+        "text": "Date of birth"
+      },
+      {
+        "text": "Appointment status"
+      }
+    ],
+    "rows": table_rows,
+    "classes": "nhsuk-table"
+  }) }}
+
 {% endblock %}

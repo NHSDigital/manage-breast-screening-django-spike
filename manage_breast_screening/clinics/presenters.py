@@ -1,6 +1,7 @@
 from ..core.utils.date_formatting import format_date, format_time_range
 from ..core.utils.string_formatting import sentence_case
 from .models import Clinic
+from ..mammograms.presenters import AppointmentPresenter
 
 
 class ClinicsPresenter:
@@ -53,6 +54,8 @@ class ClinicPresenter:
 
 class AppointmentListPresenter:
     def __init__(self, appointments, filter, counts_by_filter):
-        self.appointments = appointments
+        self.appointments = [
+            AppointmentPresenter(appointment) for appointment in appointments
+        ]
         self.filter = filter
         self.counts_by_filter = counts_by_filter
