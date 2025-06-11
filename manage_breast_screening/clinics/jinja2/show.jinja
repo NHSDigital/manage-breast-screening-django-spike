@@ -2,6 +2,7 @@
 
 {% from 'back-link/macro.jinja' import backLink %}
 {% from 'tag/macro.jinja' import tag %}
+{% from 'components/count/macro.jinja' import appCount %}
 {% from 'components/secondary-navigation/macro.jinja' import app_secondary_navigation %}
 
 {% block beforeContent %}
@@ -21,6 +22,26 @@
             "classes": presented_clinic.state.classes
         })}}
     </h1>
-
     <p>{{ presented_clinic.time_range }} - {{ presented_clinic.starts_at }}</p>
+
+    {% set ns = namespace() %}
+    {% set ns.secondaryNavItems = [] %}
+    {% for item in [
+      { "filter": 'remaining', "label": 'Remaining' },
+      { "filter": 'checked_in', "label": 'Checked in' },
+      { "filter": 'complete', "label": 'Complete' },
+      { "filter": 'all', "label": 'All' }
+    ] %}
+    {% set href %}/clinics/{{ presented_clinic.id }}/{{ item.filter }}{% endset %}
+    {% set ns.secondaryNavItems = ns.secondaryNavItems + [{
+      "text": (item.label + " " + appCount(presented_appointment_list.counts_by_filter[item.filter])) | safe,
+      "href": href | trim,
+      "current": true if item.filter == presented_appointment_list.filter
+    }] %}
+    {% endfor %}
+
+    {{ app_secondary_navigation({
+      "visuallyHiddenTitle": "Secondary menu",
+      "items": ns.secondaryNavItems
+    }) }}
 {% endblock %}

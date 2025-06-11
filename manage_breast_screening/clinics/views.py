@@ -1,8 +1,10 @@
 from django.shortcuts import render
 
-from manage_breast_screening.clinics.presenters import ClinicsPresenter, ClinicPresenter
+from .presenters import ClinicsPresenter, ClinicPresenter
+from .presenters import AppointmentListPresenter
 
 from .models import Clinic
+from ..participants.models import Appointment
 
 STATUS_COLORS = {
     Clinic.State.SCHEDULED: "blue",  # default blue
@@ -22,11 +24,19 @@ def clinic_list(request, filter="today"):
     )
 
 
-def clinic(request, id):
+def clinic(request, id, filter="remaining"):
     clinic = Clinic.objects.prefetch_related("setting").get(id=id)
     presented_clinic = ClinicPresenter(clinic)
+    appointments = Appointment.clinic_appointments_by_filter(clinic, filter)
+    counts_by_filter = Appointment.counts_by_filter(clinic)
+    presented_appointment_list = AppointmentListPresenter(
+        appointments, filter, counts_by_filter
+    )
     return render(
         request,
         "show.jinja",
-        context={"presented_clinic": presented_clinic},
+        context={
+            "presented_clinic": presented_clinic,
+            "presented_appointment_list": presented_appointment_list,
+        },
     )

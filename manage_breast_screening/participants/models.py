@@ -114,6 +114,30 @@ class ScreeningEpisode(BaseModel):
             return None
 
 
+class AppointmentQuerySet(models.QuerySet):
+    def remaining(self):
+        return self.filter(
+            status__in=[
+                Appointment.Status.CONFIRMED,
+                Appointment.Status.CHECKED_IN,
+            ]
+        )
+
+    def checked_in(self):
+        return self.filter(status=Appointment.Status.CHECKED_IN)
+
+    def complete(self):
+        return self.filter(
+            status__in=[
+                Appointment.Status.CANCELLED,
+                Appointment.Status.DID_NOT_ATTEND,
+                Appointment.Status.SCREENED,
+                Appointment.Status.PARTIALLY_SCREENED,
+                Appointment.Status.ATTENDED_NOT_SCREENED,
+            ]
+        )
+
+
 class Appointment(BaseModel):
     class Status:
         CONFIRMED = "CONFIRMED"
@@ -134,6 +158,8 @@ class Appointment(BaseModel):
         Status.ATTENDED_NOT_SCREENED: "Attended not screened",
     }
 
+    objects = AppointmentQuerySet.as_manager()
+
     screening_episode = models.ForeignKey(ScreeningEpisode, on_delete=models.CASCADE)
     clinic_slot = models.ForeignKey(
         "clinics.ClinicSlot",
@@ -144,3 +170,24 @@ class Appointment(BaseModel):
     )
     reinvite = models.BooleanField(default=False)
     stopped_reasons = models.JSONField(null=True, blank=True)
+
+    @classmethod
+    def clinic_appointments_by_filter(cls, clinic, filter):
+        match filter:
+            case "remaining":
+                return cls.objects.remaining().filter(clinic_slot__clinic=clinic)
+            case "checked_in":
+                return cls.objects.checked_in().filter(clinic_slot__clinic=clinic)
+            case "complete":
+                return cls.objects.complete().filter(clinic_slot__clinic=clinic)
+            case "all":
+                return cls.objects.filter(clinic_slot__clinic=clinic)
+            case _:
+                raise ValueError(filter)
+
+    @classmethod
+    def counts_by_filter(cls, clinic):
+        counts = {}
+        for filter in ["remaining", "checked_in", "complete", "all"]:
+            counts[filter] = cls.clinic_appointments_by_filter(clinic, filter).count()
+        return counts

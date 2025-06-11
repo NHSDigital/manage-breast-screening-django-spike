@@ -50,3 +50,9 @@ class ClinicPresenter:
     def setting_name(self):
         return self._clinic.setting.name
 
+
+class AppointmentListPresenter:
+    def __init__(self, appointments, filter, counts_by_filter):
+        self.appointments = appointments
+        self.filter = filter
+        self.counts_by_filter = counts_by_filter
