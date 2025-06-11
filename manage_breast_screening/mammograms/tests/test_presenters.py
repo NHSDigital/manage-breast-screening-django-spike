@@ -1,18 +1,15 @@
 from datetime import date, datetime
 from datetime import timezone as tz
 from unittest.mock import MagicMock
+from uuid import UUID, uuid4
 
 import pytest
 import time_machine
 
 from manage_breast_screening.clinics.models import ClinicSlot
-from manage_breast_screening.participants.models import (
-    Appointment,
-    Participant,
-    ScreeningEpisode,
-)
+from manage_breast_screening.participants.models import Appointment, ScreeningEpisode
 
-from ..presenters import AppointmentPresenter, ClinicSlotPresenter, ParticipantPresenter
+from ..presenters import AppointmentPresenter, ClinicSlotPresenter
 
 
 class TestAppointmentPresenter:
@@ -20,6 +17,7 @@ class TestAppointmentPresenter:
     def mock_appointment(self):
         mock = MagicMock(spec=Appointment)
         mock.screening_episode.participant.nhs_number = "99900900829"
+        mock.screening_episode.participant.pk = uuid4()
         return mock
 
     @pytest.mark.parametrize(
@@ -84,6 +82,16 @@ class TestAppointmentPresenter:
             "type": None,
         }
 
+    def test_participant_url(self, mock_appointment):
+        mock_appointment.screening_episode.participant.pk = UUID(
+            "ac1b68ec-06a4-40a0-a016-7108dffe4397"
+        )
+        result = AppointmentPresenter(mock_appointment)
+        assert (
+            result.participant_url
+            == "/participants/ac1b68ec-06a4-40a0-a016-7108dffe4397/"
+        )
+
 
 class TestClinicSlotPresenter:
     @pytest.fixture
@@ -106,27 +114,3 @@ class TestClinicSlotPresenter:
             ClinicSlotPresenter(clinic_slot_mock).slot_time_and_clinic_date
             == "9:30am (30 minutes) - 2 January 2025 (4 months, 17 days ago)"
         )
-
-
-class TestParticipantPresenter:
-    @pytest.fixture
-    def mock_participant(self):
-        mock = MagicMock(spec=Participant)
-        mock.nhs_number = "99900900829"
-        return mock
-
-    @pytest.mark.parametrize(
-        "category, formatted",
-        [
-            (
-                "Black, African, Caribbean or Black British",
-                "Black, African, Caribbean or Black British",
-            ),
-            (None, None),
-            ("Any other", "any other"),
-        ],
-    )
-    def test_ethnic_group_category(self, mock_participant, category, formatted):
-        mock_participant.ethnic_group_category.return_value = category
-        result = ParticipantPresenter(mock_participant)
-        assert result.ethnic_group_category == formatted

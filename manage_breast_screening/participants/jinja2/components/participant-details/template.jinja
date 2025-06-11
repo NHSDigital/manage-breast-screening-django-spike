@@ -56,6 +56,22 @@
    },
    {
      "key": {
+       "text": "Gender"
+     },
+     "value": {
+       "text": participant.gender
+     }
+   } if full_details else undefined,
+   {
+     "key": {
+       "text": "NHS Number"
+     },
+     "value": {
+       "text": participant.nhs_number
+     }
+   } if full_details else undefined,
+   {
+     "key": {
        "text": "Date of birth"
      },
      "value": {
@@ -80,6 +96,22 @@
    },
    {
      "key": {
+       "text": "Phone"
+     },
+     "value": {
+       "html": participant.phone
+     }
+   },
+   {
+     "key": {
+       "text": "Email"
+     },
+     "value": {
+       "html": participant.email
+     }
+   },
+   {
+     "key": {
        "text": "Last known mammogram"
      },
      "value": {
@@ -94,14 +126,6 @@
           }
         ]
       }
-   },
-   {
-     "key": {
-       "text": "Risk level"
-     },
-     "value": {
-       "html": participant.risk_level
-     }
-   }
+   } if show_last_known_mammogram else undefined
   ]
 }) }}

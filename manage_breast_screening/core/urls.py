@@ -31,5 +31,9 @@ urlpatterns = [
             namespace="mammograms",
         ),
     ),
-    path("", RedirectView.as_view(pattern_name="clinics:index")),
+    path(
+        "participants/",
+        include("manage_breast_screening.participants.urls", namespace="participants"),
+    ),
+    path("", RedirectView.as_view(pattern_name="clinics:index"), name="home"),
 ]

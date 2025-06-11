@@ -53,6 +53,10 @@ class AppointmentPresenter:
         )
 
     @property
+    def participant_url(self):
+        return self.participant.url
+
+    @property
     def status(self):
         colour = status_colour(self._appointment.status)
 

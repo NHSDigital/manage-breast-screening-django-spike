@@ -43,3 +43,8 @@ def format_age(value: int) -> str:
     '64 years old'
     """
     return f"{value} years old"
+
+
+def format_phone_number(value: str) -> str:
+    # This is a placeholder until we decide how we will capture and store phone numbers
+    return value
