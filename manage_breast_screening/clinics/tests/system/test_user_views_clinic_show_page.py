@@ -44,6 +44,8 @@ class TestUserViewsClinicShowPage(SystemTestCase):
             clinic_slot__clinic=self.clinic,
             clinic_slot__starts_at=datetime.now(timezone.utc).replace(hour=9, minute=0),
             status=Appointment.Status.CONFIRMED,
+            screening_episode__participant__first_name="Janet",
+            screening_episode__participant__last_name="Confirmed",
         )
         self.checked_in_appointment = AppointmentFactory(
             clinic_slot__clinic=self.clinic,
@@ -118,13 +120,20 @@ class TestUserViewsClinicShowPage(SystemTestCase):
             ],
         )
 
+    def when_i_check_in_an_appointment(self):
+        self.page.get_by_role("button", name=re.compile("Check in")).click()
+
+    def then_the_appointment_is_checked_in(self):
+        row = self.page.locator("tr").filter(has_text="Janet Confirmed")
+        expect(row.locator(".nhsuk-tag").filter(has_text="Checked in")).to_be_visible()
+
     def _expect_rows_to_match_appointments(self, rows, appointments):
         assert len(rows) == len(appointments)
         for row, appointment in zip(rows, appointments):
             expect(row.locator("td").nth(0)).to_have_text(
                 format_time(appointment.clinic_slot.starts_at)
             )
-            expect(row.locator("td").nth(1).locator("p").first).to_contain_text(
+            expect(row.locator("td").nth(1).locator("p").nth(0)).to_contain_text(
                 appointment.screening_episode.participant.full_name
             )
             expect(row.locator("td").nth(1).locator("p").nth(1)).to_contain_text(
@@ -133,9 +142,9 @@ class TestUserViewsClinicShowPage(SystemTestCase):
             expect(row.locator("td").nth(2)).to_contain_text(
                 format_date(appointment.screening_episode.participant.date_of_birth)
             )
-            expect(row.locator("td").nth(2).locator("span")).to_contain_text(
+            expect(row.locator("td").nth(2)).to_contain_text(
                 format_age(appointment.screening_episode.participant.age())
             )
-            expect(row.locator("td").nth(3).locator("strong")).to_have_text(
+            expect(row.locator("td").nth(3)).to_contain_text(
                 appointment.get_status_display()
             )

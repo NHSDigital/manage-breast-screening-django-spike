@@ -5,6 +5,7 @@
 {% from 'tag/macro.jinja' import tag %}
 {% from 'components/count/macro.jinja' import appCount %}
 {% from 'components/secondary-navigation/macro.jinja' import app_secondary_navigation %}
+{% from 'components/appointment-status/macro.jinja' import appointment_status %}
 
 {% block beforeContent %}
 {{ backLink({
@@ -70,13 +71,20 @@
         "html": details_html
       },
       {
-        "text": date_of_birth_html
+        "html": date_of_birth_html
       },
       {
-        "html": tag({
-          "html": presented_appointment.status.text,
-          "classes": presented_appointment.status.classes
-        })
+        "html": appointment_status(
+          appointment=presented_appointment,
+          check_in_url=url(
+            'clinics:check_in',
+             kwargs={
+              'id': presented_clinic.id,
+              'appointment_id': presented_appointment.id,
+              }
+          ),
+          csrf_input=csrf_input
+        )
       }
     ]) %}
   {% endfor %}

@@ -42,4 +42,9 @@ urlpatterns = [
         kwargs={"filter": "complete"},
     ),
     path("<uuid:id>/all/", views.clinic, name="show_all", kwargs={"filter": "all"}),
+    path(
+        "<uuid:id>/appointment/<uuid:appointment_id>/check-in/",
+        views.check_in,
+        name="check_in",
+    ),
 ]
