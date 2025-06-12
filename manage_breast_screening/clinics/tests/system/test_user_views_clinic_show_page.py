@@ -5,6 +5,11 @@ from datetime import datetime, timezone
 from django.urls import reverse
 from playwright.sync_api import expect
 
+from manage_breast_screening.core.utils.date_formatting import format_time, format_date
+from manage_breast_screening.core.utils.string_formatting import (
+    format_age,
+    format_nhs_number,
+)
 from manage_breast_screening.participants.models import Appointment
 from manage_breast_screening.core.system_test_setup import SystemTestCase
 from manage_breast_screening.participants.tests.factories import AppointmentFactory
@@ -35,19 +40,23 @@ class TestUserViewsClinicShowPage(SystemTestCase):
         self.then_the_appointment_is_checked_in()
 
     def given_there_are_appointments(self):
-        AppointmentFactory(
+        self.confirmed_appointment = AppointmentFactory(
             clinic_slot__clinic=self.clinic,
             clinic_slot__starts_at=datetime.now(timezone.utc).replace(hour=9, minute=0),
             status=Appointment.Status.CONFIRMED,
         )
-        AppointmentFactory(
+        self.checked_in_appointment = AppointmentFactory(
             clinic_slot__clinic=self.clinic,
-            clinic_slot__starts_at=datetime.now(timezone.utc).replace(hour=9, minute=0),
+            clinic_slot__starts_at=datetime.now(timezone.utc).replace(
+                hour=9, minute=30
+            ),
             status=Appointment.Status.CHECKED_IN,
         )
-        AppointmentFactory(
+        self.screened_appointment = AppointmentFactory(
             clinic_slot__clinic=self.clinic,
-            clinic_slot__starts_at=datetime.now(timezone.utc).replace(hour=9, minute=0),
+            clinic_slot__starts_at=datetime.now(timezone.utc).replace(
+                hour=10, minute=45
+            ),
             status=Appointment.Status.SCREENED,
         )
 
@@ -67,3 +76,66 @@ class TestUserViewsClinicShowPage(SystemTestCase):
         remaining_link = self.page.get_by_role("link", name=re.compile("Remaining"))
         count_span = remaining_link.locator(".app-count")
         expect(count_span).to_contain_text("2")
+        rows = self.page.locator("table.nhsuk-table tbody tr").all()
+        self._expect_rows_to_match_appointments(
+            rows, [self.confirmed_appointment, self.checked_in_appointment]
+        )
+
+    def when_i_click_on_checked_in(self):
+        self.page.get_by_role("link", name=re.compile("Checked in")).click()
+
+    def then_i_can_see_checked_in_appointments(self):
+        checked_in_link = self.page.get_by_role("link", name=re.compile("Checked in"))
+        count_span = checked_in_link.locator(".app-count")
+        expect(count_span).to_contain_text("1")
+        rows = self.page.locator("table.nhsuk-table tbody tr").all()
+        self._expect_rows_to_match_appointments(rows, [self.checked_in_appointment])
+
+    def when_i_click_on_complete(self):
+        self.page.get_by_role("link", name=re.compile("Complete")).click()
+
+    def then_i_can_see_completed_appointments(self):
+        complete_link = self.page.get_by_role("link", name=re.compile("Complete"))
+        count_span = complete_link.locator(".app-count")
+        expect(count_span).to_contain_text("1")
+        rows = self.page.locator("table.nhsuk-table tbody tr").all()
+        self._expect_rows_to_match_appointments(rows, [self.screened_appointment])
+
+    def when_i_click_on_all(self):
+        self.page.get_by_role("link", name=re.compile("All")).click()
+
+    def then_i_can_see_all_appointments(self):
+        all_link = self.page.get_by_role("link", name=re.compile("All"))
+        count_span = all_link.locator(".app-count")
+        expect(count_span).to_contain_text("3")
+        rows = self.page.locator("table.nhsuk-table tbody tr").all()
+        self._expect_rows_to_match_appointments(
+            rows,
+            [
+                self.confirmed_appointment,
+                self.checked_in_appointment,
+                self.screened_appointment,
+            ],
+        )
+
+    def _expect_rows_to_match_appointments(self, rows, appointments):
+        assert len(rows) == len(appointments)
+        for row, appointment in zip(rows, appointments):
+            expect(row.locator("td").nth(0)).to_have_text(
+                format_time(appointment.clinic_slot.starts_at)
+            )
+            expect(row.locator("td").nth(1).locator("p").first).to_contain_text(
+                appointment.screening_episode.participant.full_name
+            )
+            expect(row.locator("td").nth(1).locator("p").nth(1)).to_contain_text(
+                format_nhs_number(appointment.screening_episode.participant.nhs_number)
+            )
+            expect(row.locator("td").nth(2)).to_contain_text(
+                format_date(appointment.screening_episode.participant.date_of_birth)
+            )
+            expect(row.locator("td").nth(2).locator("span")).to_contain_text(
+                format_age(appointment.screening_episode.participant.age())
+            )
+            expect(row.locator("td").nth(3).locator("strong")).to_have_text(
+                appointment.get_status_display()
+            )
