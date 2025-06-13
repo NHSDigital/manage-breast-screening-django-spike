@@ -55,5 +55,4 @@ stages:
                         scriptType: bash
                         scriptLocation: inlineScript
                         addSpnToEnvironment: true
-                        inlineScript: |
-                          az containerapp job start --name manage-breast-screening-dbm-${{ env }} --resource-group rg-manbrs-${{ env }}-uks
+                        inlineScript: ./scripts/bash/db_migrate.sh ${{ env }}
