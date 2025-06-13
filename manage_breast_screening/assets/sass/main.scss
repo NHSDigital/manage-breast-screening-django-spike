@@ -33,3 +33,15 @@ Highlight in red links that don't get anywhere yet
 a[href="#"] {
   color: #c80000;
 }
+
+// Status tag positioning within headers
+.app-header-with-status {
+  position: relative;
+}
+
+.app-header-with-status__status-tag {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  text-align: right;
+}
