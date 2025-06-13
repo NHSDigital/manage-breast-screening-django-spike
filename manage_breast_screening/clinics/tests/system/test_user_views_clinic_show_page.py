@@ -38,6 +38,7 @@ class TestUserViewsClinicShowPage(SystemTestCase):
 
         self.when_i_check_in_an_appointment()
         self.then_the_appointment_is_checked_in()
+        self.and_the_appointments_remain_in_the_same_order()
 
     def given_there_are_appointments(self):
         self.confirmed_appointment = AppointmentFactory(
@@ -126,6 +127,17 @@ class TestUserViewsClinicShowPage(SystemTestCase):
     def then_the_appointment_is_checked_in(self):
         row = self.page.locator("tr").filter(has_text="Janet Confirmed")
         expect(row.locator(".nhsuk-tag").filter(has_text="Checked in")).to_be_visible()
+
+    def and_the_appointments_remain_in_the_same_order(self):
+        self.when_i_click_on_all()
+        rows = self.page.locator("table.nhsuk-table tbody tr").all()
+        expected_times = [
+            format_time(self.confirmed_appointment.clinic_slot.starts_at),
+            format_time(self.checked_in_appointment.clinic_slot.starts_at),
+            format_time(self.screened_appointment.clinic_slot.starts_at),
+        ]
+        for row, expected_time in zip(rows, expected_times):
+            expect(row.locator("td").nth(0)).to_have_text(expected_time)
 
     def _expect_rows_to_match_appointments(self, rows, appointments):
         assert len(rows) == len(appointments)
