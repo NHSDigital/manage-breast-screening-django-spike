@@ -1,6 +1,7 @@
 from ..core.utils.date_formatting import format_date, format_time_range
 from ..core.utils.string_formatting import sentence_case
 from .models import Clinic
+from ..mammograms.presenters import AppointmentPresenter
 
 
 class ClinicsPresenter:
@@ -30,6 +31,7 @@ class ClinicPresenter:
 
     def __init__(self, clinic):
         self._clinic = clinic
+        self.id = clinic.id
         self.starts_at = format_date(clinic.starts_at)
         self.session_type = clinic.session_type().capitalize()
         self.number_of_slots = clinic.clinic_slots.count()
@@ -44,3 +46,19 @@ class ClinicPresenter:
             "text": self._clinic.get_state_display(),
             "classes": "nhsuk-tag--" + self.STATUS_COLORS[self._clinic.state],
         }
+
+    @property
+    def setting_name(self):
+        return self._clinic.setting.name
+
+
+class AppointmentListPresenter:
+    def __init__(self, appointments, filter, counts_by_filter):
+        sorted_appointments = sorted(
+            appointments, key=lambda a: a.clinic_slot.starts_at
+        )
+        self.appointments = [
+            AppointmentPresenter(appointment) for appointment in sorted_appointments
+        ]
+        self.filter = filter
+        self.counts_by_filter = counts_by_filter
